@@ -1,0 +1,36 @@
+body { margin: 0px; padding: 0px; }
+.nav_wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr .5fr;
+    height:50px;
+    background-color: #18B7BE;
+    text-align: center;
+    text-transform: uppercase;
+}
+.nav_wrapper a{
+    text-decoration: none;
+    color:#F9F7F0;
+    font-weight: bold;
+    padding-top: 10px ;
+}
+.now_page{
+    background-color: #178CA4;
+}
+.nav_wrapper a:not(:nth-child(1)):hover{
+    background-color: #178CA4;
+}
+.body_wrapper {
+    display: grid;
+    grid-template-columns: 2fr 3.5fr;
+    height:740px;
+    background-color: white;
+    text-align: center;
+    text-transform: uppercase;
+}
+.body_wrapper .map{
+    background-color: #178CA4;
+}
+.world_map{
+    width: 100%;
+    height: 100%;
+}
