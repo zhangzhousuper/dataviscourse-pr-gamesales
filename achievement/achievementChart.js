@@ -29,6 +29,7 @@ class achievementChart {
 
         this.drawBarChart();
         this.drawSalesChart("Nintendo");
+        this.drawDistributionBar("Nintendo");
     }
     
     drawBarChart() {
@@ -202,18 +203,7 @@ class achievementChart {
         console.log(company);
         let salesData = d3.group(this.data, d => d.Publisher).get(company);
         console.log(salesData);
-        let salesDataByDistrict = salesData.map(d => {
-            return {
-                year: d.Year,
-                global: d.Global_Sales,
-                na: d.NA_Sales,
-                eu: d.EU_Sales,
-                jp: d.JP_Sales,
-                other: d.Other_Sales
-            }
-        })
-
-        console.log(salesDataByDistrict);
+        
         let salesDataByYear = d3.group(salesData, d => d.Year);
         // salesDataByYear = d3.filter(salesDataByYear, d => d[0] != "N/A");
         salesDataByYear.forEach((value, key) => {
@@ -259,6 +249,7 @@ class achievementChart {
         let yAxis = d3.axisLeft(yScale);
 
         let g = infoSvg.append("g")
+            .attr("id", "achievement_info_sales_chart")
             .attr("transform", `translate(${margin.left + 10}, ${margin.top + 180})`);
         
         g.append("g").call(yAxis).attr("transform", `translate(0, 0)`);
@@ -272,10 +263,119 @@ class achievementChart {
             .attr("width", xScale.bandwidth())
             .attr("height", d => innerHeight - yScale(d[1].globalTotal))
             .attr("fill", "steelblue")
-
-        
-        
-
     }
+
+    drawDistributionBar(company) {
+        let salesData = d3.group(this.data, d => d.Publisher).get(company);
+        let totalSales = d3.sum(salesData, d => d.Global_Sales);
+        let naSales = d3.sum(salesData, d => d.NA_Sales);
+        let euSales = d3.sum(salesData, d => d.EU_Sales);
+        let jpSales = d3.sum(salesData, d => d.JP_Sales);
+        let otherSales = d3.sum(salesData, d => d.Other_Sales);
+        let saleDistribution = {
+            naSales: naSales / totalSales,
+            euSales: euSales / totalSales,
+            jpSales: jpSales / totalSales,
+            otherSales: otherSales / totalSales
+        }
+        saleDistribution = Array.from(Object.entries(saleDistribution));
+        console.log(saleDistribution);
+
+        let infoSvg = d3.select(".achievement_info_svg")
+        .attr("width", 800)
+        .attr("height", 800);
+
+        let margin = {top: 20, right: 20, bottom: 20, left: 20};
+        let innerWidth = 800 - margin.left - margin.right;
+        let innerHeight = 200 - margin.top - margin.bottom;
+
+        let radius = 80;
+        let color = d3.scaleOrdinal()
+            .domain(saleDistribution.map(d => d[0]))
+            .range(d3.schemeCategory10);
+        
+        let pie = d3.pie()
+            .value(d => d[1])
+            .sort(null);
+
+        console.log(pie(saleDistribution));
+
+        let arc = d3.arc()
+            .innerRadius(0)
+            .outerRadius(radius);
+
+        console.log(arc);
+
+        let arcs = pie(saleDistribution);
+        console.log(arcs);
+        let g = infoSvg.append("g")
+            .attr("id", "achievement_info_distribution_chart")
+            .attr("transform", `translate(${innerWidth-140}, ${margin.top + 80})`);
+
+        let path = g.selectAll("path")
+            .data(arcs)
+            .join("path")
+            .attr("fill", d => color(d.data[0]))
+            .attr("d", arc)
+            .attr("stroke", "white")
+            .style("stroke-width", "2px")
+            .style("opacity", 0.7);
+        
+        g.selectAll("text")
+            .data(arcs)
+            .join("text")
+            // .attr("transform", d => `translate(${arc.centroid(d)})`)
+            .attr("x", d => arc.centroid(d)[0]*1.5)
+            .attr("y", d => arc.centroid(d)[1]*1.5)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "10px")
+            .attr("fill", "black")
+            .attr("font-weight", "bold")
+            .text(d => (d.data[1] * 100).toFixed(1) + "%");
+
+        let legend = infoSvg.append("g")
+            .attr("id", "achievement_info_distribution_legend")
+            .attr("transform", `translate(${innerWidth-40}, ${margin.top + 10})`);
+        
+        legend.selectAll(null)
+            .data(saleDistribution)
+            .enter()
+            .append("rect")
+            .attr("x", 0)
+            .attr("y", (d, i) => i * 20)
+            .attr("width", 10)
+            .attr("height", 10)
+            .attr("fill", d => color(d[0]));
+        
+        legend.selectAll(null)
+            .data(saleDistribution)
+            .enter()
+            .append("text")
+            .attr("x", 15)
+            .attr("y", (d, i) => i * 20 + 9)
+            .text(d => d[0])
+            .attr("font-size", "10px")
+            .attr("fill", "black");
+        // let radius = 80;
+        // console.log(radius);
+        // let pie = d3.pie()
+        //     .padAngle(0.005)
+        //     .value(d => d[1].globalTotal)
+        //     .sort(null);
+        // let arc = d3.arc()
+        //     .innerRadius(radius * 0.67)
+        //     .outerRadius(radius);
+        // let arcs = pie(this.companyData);
+        // console.log(arcs);
+
+        // infoSvg.selectAll("path")
+        //     .data(arcs)
+        //     .join("path")
+        //     .attr("fill", d => colorScale(d.data[0]))
+        //     .attr("d", arc)
+        //     .attr("transform", `translate(${margin.left + 40}, ${margin.top + 80})`);
+        
+    }
+
 
 }
