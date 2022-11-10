@@ -29,7 +29,8 @@ class achievementChart {
 
         this.drawBarChart();
         this.drawSalesChart("Nintendo");
-        this.drawDistributionBar("Nintendo");
+        this.drawDistributionPie("Nintendo");
+        this.drawGenrePie("Nintendo");
     }
     
     drawBarChart() {
@@ -112,91 +113,6 @@ class achievementChart {
             .attr("y", d => yScale(d[0]) + yScale.bandwidth() / 2 + 10)
             .text(d => d[1].globalTotal.toFixed(2));
 
-        
-        // let infoSize = {
-        //     width: 400,
-        //     height: 800
-        // }
-        // let infoSvg = d3.select(".achievement_info_svg")
-        // .attr("width", infoSize.width)
-        // .attr("height", infoSize.height);
-        
-    
-        // let radius = 80;
-        // console.log(radius);
-        // let pie = d3.pie()
-        //     .padAngle(0.005)
-        //     .value(d => d[1].globalTotal)
-        //     .sort(null);
-        // let arc = d3.arc()
-        //     .innerRadius(radius * 0.67)
-        //     .outerRadius(radius);
-        // let arcs = pie(this.companyData);
-        // console.log(arcs);
-
-        // infoSvg.selectAll("path")
-        //     .data(arcs)
-        //     .join("path")
-        //     .attr("fill", d => colorScale(d.data[0]))
-        //     .attr("d", arc)
-        //     .attr("transform", `translate(${margin.left + 40}, ${margin.top + 80})`);
-
-        
-
-        
-        
-        // let content = "Nintendo was founded in 1889 as Nintendo Karuta by craftsman Fusajiro Yamauchi and originally produced handmade hanafuda playing cards. After venturing into various lines of business during the 1960s and acquiring a legal status as a public company, Nintendo distributed its first console, the Color TV-Game, in 1977. It gained international recognition with the release of Donkey Kong in 1981 and the Nintendo Entertainment System and Super Mario Bros. in 1985.";
-
-        // let textData = textbox(content,18)
-        // function textbox (content, chars) {
-
-        //     let temp = Array.from(content);
-        //     let paragraph =[];
-        //         paragraph[0]="";
-        //     let j=0;
-        //     let offset = 0,start = 0;
-            
-            
-        //   var pattern = new RegExp("[A-Za-z0-9. ]+"); //filter
-          
-        //     for (var i = 0; i < temp.length; i++ ){
-              
-        //       if(pattern.test(temp[i])){
-        //             offset += 1;   
-        //                     };
-           
-        //       if ( i == start + chars + Math.floor(offset / 3)){
-             
-        //       start = i;
-        //       offset = 0;
-        //       j++;
-        //       paragraph[j] ="";
-           
-        //       }
-        //       paragraph[j] += temp[i];
-        //       console.log(paragraph[j])
-               
-        //     }
-          
-        //     return paragraph
-        // }
-        
-        // let companyDescription = infoSvg.append("g")
-        //     .attr("id", "achievement_info_description");
-
-        // companyDescription.append("rect")
-        //     .attr("width", 400)
-        //     .attr("height", 800)
-        //     .attr("fill", "background")
-
-        // companyDescription.selectAll("text")
-        //     .data(textData)
-        //     .join("text")
-        //     .attr("x", 20)
-        //     .attr("y", (d, i) => 20 + i * 20)
-        //     .text(d => d)
-        //     .attr("class", "achievement_info_description_text")
-
     }
 
     drawSalesChart(company) {
@@ -265,7 +181,7 @@ class achievementChart {
             .attr("fill", "steelblue")
     }
 
-    drawDistributionBar(company) {
+    drawDistributionPie(company) {
         let salesData = d3.group(this.data, d => d.Publisher).get(company);
         let totalSales = d3.sum(salesData, d => d.Global_Sales);
         let naSales = d3.sum(salesData, d => d.NA_Sales);
@@ -279,7 +195,7 @@ class achievementChart {
             otherSales: otherSales / totalSales
         }
         saleDistribution = Array.from(Object.entries(saleDistribution));
-        console.log(saleDistribution);
+        // console.log(saleDistribution);
 
         let infoSvg = d3.select(".achievement_info_svg")
         .attr("width", 800)
@@ -298,16 +214,15 @@ class achievementChart {
             .value(d => d[1])
             .sort(null);
 
-        console.log(pie(saleDistribution));
+        // console.log(pie(saleDistribution));
 
         let arc = d3.arc()
             .innerRadius(0)
             .outerRadius(radius);
 
-        console.log(arc);
 
         let arcs = pie(saleDistribution);
-        console.log(arcs);
+        // console.log(arcs);
         let g = infoSvg.append("g")
             .attr("id", "achievement_info_distribution_chart")
             .attr("transform", `translate(${innerWidth-140}, ${margin.top + 80})`);
@@ -325,8 +240,8 @@ class achievementChart {
             .data(arcs)
             .join("text")
             // .attr("transform", d => `translate(${arc.centroid(d)})`)
-            .attr("x", d => arc.centroid(d)[0]*1.5)
-            .attr("y", d => arc.centroid(d)[1]*1.5)
+            .attr("x", d => arc.centroid(d)[0]*1.6)
+            .attr("y", d => arc.centroid(d)[1]*1.6)
             .attr("text-anchor", "middle")
             .attr("font-size", "10px")
             .attr("fill", "black")
@@ -356,26 +271,93 @@ class achievementChart {
             .text(d => d[0])
             .attr("font-size", "10px")
             .attr("fill", "black");
-        // let radius = 80;
-        // console.log(radius);
-        // let pie = d3.pie()
-        //     .padAngle(0.005)
-        //     .value(d => d[1].globalTotal)
-        //     .sort(null);
-        // let arc = d3.arc()
-        //     .innerRadius(radius * 0.67)
-        //     .outerRadius(radius);
-        // let arcs = pie(this.companyData);
-        // console.log(arcs);
-
-        // infoSvg.selectAll("path")
-        //     .data(arcs)
-        //     .join("path")
-        //     .attr("fill", d => colorScale(d.data[0]))
-        //     .attr("d", arc)
-        //     .attr("transform", `translate(${margin.left + 40}, ${margin.top + 80})`);
+        
         
     }
 
+    drawGenrePie(company) {
+        let salesDataByGenre = d3.group(this.data, d => d.Publisher).get(company);
+        let totalSales = d3.sum(salesDataByGenre, d => d.Global_Sales);
+        console.log(salesDataByGenre);
+        salesDataByGenre = d3.group(salesDataByGenre, d => d.Genre);
+        salesDataByGenre.forEach((value, key) => {
+            salesDataByGenre.set(key, d3.sum(value, d => d.Global_Sales / totalSales));
+        });
+        salesDataByGenre = Array.from(salesDataByGenre);
+        console.log(salesDataByGenre);
 
+        let infoSvg = d3.select(".achievement_info_svg")
+        .attr("width", 800)
+        .attr("height", 800);
+
+        let margin = {top: 20, right: 20, bottom: 20, left: 20};
+        let innerWidth = 800 - margin.left - margin.right;
+        let innerHeight = 200 - margin.top - margin.bottom;
+
+        let radius = 80;
+        let color = d3.scaleOrdinal()
+            .domain(salesDataByGenre.map(d => d[0]))
+            .range(d3.schemeCategory10);
+        
+        let pie = d3.pie()
+            .value(d => d[1])
+            .sort(null);
+
+        console.log(pie(salesDataByGenre));
+
+        let arc = d3.arc()
+            .innerRadius(0)
+            .outerRadius(radius);
+
+
+        let arcs = pie(salesDataByGenre);
+        let g = infoSvg.append("g")
+            .attr("id", "achievement_info_distribution_chart")
+            .attr("transform", `translate(${innerWidth-400}, ${margin.top + 80})`);
+
+        let path = g.selectAll("path")
+            .data(arcs)
+            .join("path")
+            .attr("fill", d => color(d.data[0]))
+            .attr("d", arc)
+            .attr("stroke", "white")
+            .style("stroke-width", "2px")
+            .style("opacity", 0.7);
+        
+        g.selectAll("text")
+            .data(arcs)
+            .join("text")
+            // .attr("transform", d => `translate(${arc.centroid(d)})`)
+            .attr("x", d => arc.centroid(d)[0]*2.2)
+            .attr("y", d => arc.centroid(d)[1]*2.2)
+            // .attr("text-anchor", "middle")
+            .attr("font-size", "10px")
+            .attr("fill", "black")
+            .attr("font-weight", "bold")
+            .text(d => (d.data[1] * 100).toFixed(1) + "%");
+
+        let legend = infoSvg.append("g")
+            .attr("id", "achievement_info_distribution_legend")
+            .attr("transform", `translate(${innerWidth-300}, ${margin.top })`);
+        
+        legend.selectAll(null)
+            .data(salesDataByGenre)
+            .enter()
+            .append("rect")
+            .attr("x", 0)
+            .attr("y", (d, i) => i * 14)
+            .attr("width", 10)
+            .attr("height", 10)
+            .attr("fill", d => color(d[0]));
+        
+        legend.selectAll(null)
+            .data(salesDataByGenre)
+            .enter()
+            .append("text")
+            .attr("x", 15)
+            .attr("y", (d, i) => i * 14 + 9)
+            .text(d => d[0])
+            .attr("font-size", "10px")
+            .attr("fill", "black");
+    }
 }
