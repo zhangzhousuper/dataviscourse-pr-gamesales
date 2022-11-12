@@ -1,18 +1,14 @@
-// ******* DATA LOADING *******
-// We took care of that for you
 async function loadData () {
-    console.log(1)
-    const mapData = await d3.json('./data/world.json');
-    return { mapData };
-  }
+  const mapData = await d3.json('./data/world.json');
+  const vgsalesData = await d3.csv('../data/vgsales.csv');
+  return { mapData,vgsalesData };
+}
 
-//******* APPLICATION MOUNTING *******
 loadData().then((loadedData) => {  
-    
-    // Store the loaded data into the globalApplicationState
-    const mapData = loadedData.mapData;
-    // Creates the view objects with the global state passed in 
-    const worldMap = new MapVis(mapData);
+
+  const mapData = loadedData.mapData;
+  const vgsalesData = loadedData.vgsalesData;
   
+  const worldMap = new MapVis(mapData, vgsalesData);
+
 });
-  
