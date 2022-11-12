@@ -31,6 +31,7 @@ class achievementChart {
         this.drawSalesChart("Nintendo");
         this.drawDistributionPie("Nintendo");
         this.drawGenrePie("Nintendo");
+        this.drawInfoCard("Nintendo");
     }
     
     drawBarChart() {
@@ -171,14 +172,25 @@ class achievementChart {
         g.append("g").call(yAxis).attr("transform", `translate(0, 0)`);
         g.append("g").call(xAxis).attr("transform", `translate(0, ${innerHeight})`);
 
-        g.selectAll("rect")
-            .data(salesDataByYear)
-            .join("rect")
-            .attr("x", d => xScale(d[0]))
-            .attr("y", d => yScale(d[1].globalTotal))
-            .attr("width", xScale.bandwidth())
-            .attr("height", d => innerHeight - yScale(d[1].globalTotal))
-            .attr("fill", "steelblue")
+        let lineGenerator = d3.line()
+            .x(d => xScale(d[0]))
+            .y(d => yScale(d[1].globalTotal));
+
+        g.append("path")
+            .attr("d", lineGenerator(salesDataByYear))
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 2);
+
+
+        // g.selectAll("rect")
+        //     .data(salesDataByYear)
+        //     .join("rect")
+        //     .attr("x", d => xScale(d[0]))
+        //     .attr("y", d => yScale(d[1].globalTotal))
+        //     .attr("width", xScale.bandwidth())
+        //     .attr("height", d => innerHeight - yScale(d[1].globalTotal))
+        //     .attr("fill", "steelblue")
     }
 
     drawDistributionPie(company) {
@@ -240,8 +252,8 @@ class achievementChart {
             .data(arcs)
             .join("text")
             // .attr("transform", d => `translate(${arc.centroid(d)})`)
-            .attr("x", d => arc.centroid(d)[0]*1.6)
-            .attr("y", d => arc.centroid(d)[1]*1.6)
+            .attr("x", d => arc.centroid(d)[0]*1.5)
+            .attr("y", d => arc.centroid(d)[1]*1.5)
             .attr("text-anchor", "middle")
             .attr("font-size", "10px")
             .attr("fill", "black")
@@ -324,21 +336,21 @@ class achievementChart {
             .style("stroke-width", "2px")
             .style("opacity", 0.7);
         
-        g.selectAll("text")
-            .data(arcs)
-            .join("text")
-            // .attr("transform", d => `translate(${arc.centroid(d)})`)
-            .attr("x", d => arc.centroid(d)[0]*2.2)
-            .attr("y", d => arc.centroid(d)[1]*2.2)
-            // .attr("text-anchor", "middle")
-            .attr("font-size", "10px")
-            .attr("fill", "black")
-            .attr("font-weight", "bold")
-            .text(d => (d.data[1] * 100).toFixed(1) + "%");
+        // g.selectAll("text")
+        //     .data(arcs)
+        //     .join("text")
+        //     // .attr("transform", d => `translate(${arc.centroid(d)})`)
+        //     .attr("x", d => arc.centroid(d)[0]*2.2)
+        //     .attr("y", d => arc.centroid(d)[1]*2.2)
+        //     // .attr("text-anchor", "middle")
+        //     .attr("font-size", "10px")
+        //     .attr("fill", "black")
+        //     .attr("font-weight", "bold")
+        //     .text(d => (d.data[1] * 100).toFixed(1) + "%");
 
         let legend = infoSvg.append("g")
             .attr("id", "achievement_info_distribution_legend")
-            .attr("transform", `translate(${innerWidth-300}, ${margin.top })`);
+            .attr("transform", `translate(${innerWidth-305}, ${margin.top })`);
         
         legend.selectAll(null)
             .data(salesDataByGenre)
@@ -359,5 +371,103 @@ class achievementChart {
             .text(d => d[0])
             .attr("font-size", "10px")
             .attr("fill", "black");
+    }
+    
+    drawInfoCard(company) {
+        let infoSvg = d3.select(".achievement_info_svg");
+        let infoCard = infoSvg.append("g")
+            .attr("id", "achievement_info_card");
+        
+        infoCard.append("rect")
+            .attr("x", 20)
+            .attr("y", 10)
+            .attr("width", 250)
+            .attr("height", 180)
+            .attr("fill", "white")
+            .attr("background-color", "#ef802e");
+        
+        infoCard.append("text")
+            .attr("x", 30)
+            .attr("y", 30)
+            .text(company)
+            .attr("font-size", "20px")
+            .attr("fill", "red");
+        
+        infoCard.append("text")
+            .attr("x", 30)
+            .attr("y", 50)
+            .text("Total Sales: " + d3.sum(this.data, d => d.Publisher == company ? d.Global_Sales : 0).toFixed(2))
+            .attr("font-size", "15px")
+            .attr("fill", "black");
+
+        infoCard.append("text")
+            .attr("x", 30)
+            .attr("y", 70)
+            .text("Total Games: " + d3.sum(this.data, d => d.Publisher == company ? 1 : 0))
+            .attr("font-size", "15px")
+            .attr("fill", "black");
+
+        infoCard.append("text")
+            .attr("x", 30)
+            .attr("y", 90)
+            .text("Average Sales: " + (d3.sum(this.data, d => d.Publisher == company ? d.Global_Sales : 0) / d3.sum(this.data, d => d.Publisher == company ? 1 : 0)).toFixed(2))
+            .attr("font-size", "15px")
+            .attr("fill", "black");
+
+        // the best sales game
+        let bestSalesGame = d3.max(this.data, d => d.Publisher == company ? d.Global_Sales : 0);
+        let bestSalesGameName = this.data.filter(d => d.Publisher == company && d.Global_Sales == bestSalesGame)[0].Name;
+        infoCard.append("text")
+            .attr("x", 30)
+            .attr("y", 110)
+            .text("Best Sales Game: " + bestSalesGameName)
+            .attr("font-size", "15px")
+            .attr("fill", "black");
+
+        // the most genre they made
+        let genreCount = new Map();
+        this.data.filter(d => d.Publisher == company).forEach(d => {
+            if (genreCount.has(d.Genre)) {
+                genreCount.set(d.Genre, genreCount.get(d.Genre) + 1);
+            } else {
+                genreCount.set(d.Genre, 1);
+            }
+        }
+        );
+        let maxGenre = d3.max(Array.from(genreCount.values()));
+        let maxGenreName = Array.from(genreCount.keys()).filter(d => genreCount.get(d) == maxGenre)[0];
+        infoCard.append("text")
+            .attr("x", 30)
+            .attr("y", 130)
+            .text("Most Genre: " + maxGenreName)
+            .attr("font-size", "15px")
+            .attr("fill", "black");
+        
+        // the best sales is eusales or jp sales or other sales or na sales
+        let bestSalesRegion = d3.max([d3.sum(this.data, d => d.Publisher == company ? d.EU_Sales : 0), d3.sum(this.data, d => d.Publisher == company ? d.JP_Sales : 0), d3.sum(this.data, d => d.Publisher == company ? d.Other_Sales : 0), d3.sum(this.data, d => d.Publisher == company ? d.NA_Sales : 0)]);
+        let bestSalesRegionName = "";
+        if (bestSalesRegion == d3.sum(this.data, d => d.Publisher == company ? d.EU_Sales : 0)) {
+            bestSalesRegionName = "EU";
+        }
+        if (bestSalesRegion == d3.sum(this.data, d => d.Publisher == company ? d.JP_Sales : 0)) {
+            bestSalesRegionName = "JP";
+        }
+        if (bestSalesRegion == d3.sum(this.data, d => d.Publisher == company ? d.Other_Sales : 0)) {
+            bestSalesRegionName = "Other";
+        }
+        if (bestSalesRegion == d3.sum(this.data, d => d.Publisher == company ? d.NA_Sales : 0)) {
+            bestSalesRegionName = "NA";
+        }
+        infoCard.append("text")
+            .attr("x", 30)
+            .attr("y", 150)
+            .text("Best Sales Region: " + bestSalesRegionName)
+            .attr("font-size", "15px")
+            .attr("fill", "black");
+            
+
+
+
+
     }
 }
