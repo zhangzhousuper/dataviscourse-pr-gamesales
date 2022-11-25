@@ -11,6 +11,7 @@
     <link href="../fontawesome-free-6.2.0-web/css/solid.css" rel="stylesheet">
     <script src = "achievementChart.js" ></script>
     <script src="script.js"></script>
+    <script src="d3-waffle.js"></script>
     <link href="../CSS/fundemental.css" rel="stylesheet">
     <title>Document</title>
 </head>
@@ -45,8 +46,16 @@
         </div>
         <div class="achievement_info">
             <svg class="achievement_info_svg">
+                <g id="achievement_info_waffle_chart">
+                </g>
             </svg>
+            <select id="achievement_info_select">
+                <option value="Sales">Sales</option>
+                <option value="Genres">Genres</option>
+                <option value="Platform">Platform</option>
+            </select>  
         </div>
+        
     </div>
 </body>
 </html>
