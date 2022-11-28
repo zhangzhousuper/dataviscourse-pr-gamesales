@@ -137,8 +137,10 @@ class achievementChart {
                 // this.drawGenrePie(d.target.__data__[0]);
                 this.drawDistributionWaffle(d.target.__data__[0], this.dropDown.property("value"));
                 this.drawInfoCard(d.target.__data__[0]);
-
+                
             });
+        
+        
 
         let label = svg.append("g")
             .attr("font", "sans-serif")
