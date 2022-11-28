@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,7 +13,18 @@
     <script src="script.js"></script>
     <script src="d3-waffle.js"></script>
     <link href="../CSS/fundemental.css" rel="stylesheet">
+    <link href="./achievement.css" rel="stylesheet">
     <title>Document</title>
+    <style>
+        
+        * {
+                font-family: 'Quicksand';
+                font-weight: bold;
+                position: relative;
+                z-index: auto;;
+        }
+        
+        </style>
 </head>
 <body>
     <div class="toolbox">
@@ -30,7 +41,7 @@
         <a href="../map/map.html" class="app__link app-link is-active" title="Characters">
             Maps
         </a>
-        <a href="../cw.html" class="app__link app-link" title="Locations">
+        <a href="../cw/cw.html" class="app__link app-link" title="Locations">
             Character workshops
         </a>
         <a data-fancybox="" data-src="#panel-about" href="javascript:;" class="app__link" title="About">
@@ -38,13 +49,13 @@
         </a>
     </div>
 
-    <div class="body_wrapper">
-        <div class="achievement_chart">
+    <div class="body_wrapper" style="background-color:#f6f5fa">
+        <div class="achievement_chart" style="background-color:#f6f5fa">
             <svg class="achievement_chart_svg">
             </svg>
             
         </div>
-        <div class="achievement_info">
+        <div class="achievement_info" style="background-color:#f6f5fa">
             <svg class="achievement_info_svg">
                 <g id="achievement_info_waffle_chart">
                 </g>

@@ -143,13 +143,14 @@ class achievementChart {
         
 
         let label = svg.append("g")
-            .attr("font", "sans-serif")
+            .attr("font-family", "Quicksand")
             .attr("font-size", 10)
             .style("font-variant-numeric", "tabular-nums")
             .selectAll("text");
 
         label.data(this.companyData)
             .join("text")
+            .attr("font-family", "Quicksand")
             .attr("font-weight", "bold")
             .attr("x", d => xScale(d[1].globalTotal) + 20)
             .attr("y", d => yScale(d[0]) + yScale.bandwidth() / 2)
@@ -157,6 +158,7 @@ class achievementChart {
 
         label.data(this.companyData)
             .join("text")
+            .attr("font-family", "Quicksand")
             .attr("font-size", 9)
             .attr("x", d => xScale(d[1].globalTotal) + 20)
             .attr("y", d => yScale(d[0]) + yScale.bandwidth() / 2 + 10)
@@ -226,6 +228,7 @@ class achievementChart {
             .style("text-anchor", "middle")
             .text("Year");
         d3.select("#achievement_info_sales_chart").append("text")
+            .attr("font-family", "Quicksand")
             .attr("transform", "rotate(-90)")
             .attr("y", 0 - margin.left - 30)
             .attr("x", 0 - (innerHeight / 2))
@@ -234,6 +237,7 @@ class achievementChart {
             .text("Global Sales (in millions)");
 
         d3.select("#achievement_info_sales_chart_x_axis").selectAll("text")
+        .attr("font-family", "Quicksand")
             .attr("transform", "rotate(-45)")
             .attr("y", 0)
             .attr("x", 0)
@@ -360,6 +364,7 @@ class achievementChart {
             .attr("fill", "black");
 
             this.infoCard.append("text")
+            .attr("font-family", "Quicksand")
             .attr("x", 30)
             .attr("y", 70)
             .text("Total Games: " + d3.sum(this.data, d => d.Publisher == company ? 1 : 0))
@@ -367,6 +372,7 @@ class achievementChart {
             .attr("fill", "black");
 
             this.infoCard.append("text")
+            .attr("font-family", "Quicksand")
             .attr("x", 30)
             .attr("y", 90)
             .text("Average Sales: " + (d3.sum(this.data, d => d.Publisher == company ? d.Global_Sales : 0) / d3.sum(this.data, d => d.Publisher == company ? 1 : 0)).toFixed(2))
@@ -399,6 +405,7 @@ class achievementChart {
             .attr("x", 30)
             .attr("y", 130)
             .text("Most Genre: " + maxGenreName)
+            .attr("font-family", "Quicksand")
             .attr("font-size", "15px")
             .attr("fill", "black");
         
@@ -418,6 +425,7 @@ class achievementChart {
             bestSalesRegionName = "NA";
         }
         this.infoCard.append("text")
+        .attr("font-family", "Quicksand")
             .attr("x", 30)
             .attr("y", 150)
             .text("Best Sales Region: " + bestSalesRegionName)
