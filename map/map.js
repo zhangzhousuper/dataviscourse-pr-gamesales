@@ -15,37 +15,146 @@ class MapVis {
 
         this.mapCreate();
         this.donutCreate();
-        this.barCreate();
-        this.lineCreate();
-        this.zoomCreate();
+        this.heatmapCreate(this.vgsalesData);
+        this.lineCreate(this.vgsalesData);
 
-
-        // this.genereColorScale = d3.scaleOrdinal().domain(Sales.map(d=>d.region)).range(["#66c2a5","#f88d62","#8da0cb","#e78ac3","#a6d854"]);
+        d3.select(".charts").style("width","94%").style("height","94%")
+                            .style("background-color","white")
+                            .style("margin-left","30px").style("margin-top","25px")
+                            .style("border-radius","25px")
         
     }
 
     mapCreate(){
+        // basic info
+        let width = document.getElementsByClassName("world_map")[0].clientWidth;
+        let height = document.getElementsByClassName("world_map")[0].clientHeight;
+
+        // svg basic
+        let svg = d3.select(".world_map").select("svg").attr("width","100%").attr("height","100%");
+
+        // load map data
         let json = topojson.feature(this.mapData, this.mapData.objects.countries);
+
+        // define regions
+        let JP = ["JPN"]
+        let NA = ["USA","CAN"]
+        let EU = ["UK","FIN","SWE","NOR","ISL","DNK","EST","LVA","LTU","BLR","RUS","UKR","MDA","POL","CZE","SVK","HUN",
+        "DEU","AUT","CHE","LIE","IRL","NLD","BEL","LUX","FRA","MCO","ROU","BGR","SRB","MKD","ALB","GRC","SVN","HRV","ITA",
+        "VAT","SMR","MLT","ESP","PRT","AND","BIH"]
+
+        // create a tooltip
+        var tooltip = d3.select(".world_map")
+                        .append("div")
+                        .style("opacity", 0)
+                        .attr("class", "tooltip")
+                        .style("background-color", "white")
+                        .style("border", "solid")
+                        .style("border-width", "2px")
+                        .style("border-radius", "5px")
+                        .style("padding", "5px")
+                        .style("position","absolute")
+                        .style("z-index","2")
+        
+        // Three function that change the tooltip when user hover / move / leave a cell
+        const mouseover = function(event,d) {
+            tooltip
+            .style("opacity", 1)
+            .style("z-index","2")
+            .html("Region: " + d.region + "<br> Sales: " + d.Sales)
+            .style("left", (event.clientX) + "px")
+            .style("top", (event.clientY) + "px")
+            d3.select(this)
+            .style("stroke", "black")
+            .style("opacity", 1)
+
+            // change region color
+            let selectedReigon = d3.select(this)
+            selectedReigon.attr("text",d=>{
+                // change color
+                let changeColor = function(region){
+                    let allPath = d3.select(".world_map").select("svg").selectAll("path");
+                    allPath = allPath._groups[0];
+                    allPath.forEach(d=>{
+                        let id = "";
+                        d3.select(d).attr("text",d=>id=d["id"]);
+                        if(region==="None")
+                        { 
+                            if(!(JP.includes(id)||NA.includes(id)||EU.includes(id)))
+                            {
+                                d3.select(d).attr("fill","#e3e0d4")
+                            }
+                        }
+                        else
+                        {
+                            if(region.includes(id))
+                            {
+                                d3.select(d).attr("fill","#e3e0d4")
+                            }
+                        }    
+                    })
+                }
+                // check
+                let region = 0;
+                if(JP.includes(d['id']))
+                {
+                    changeColor(JP);
+                }
+                else if(EU.includes(d['id']))
+                {
+                    changeColor(EU);
+                }
+                else if(NA.includes(d['id']))
+                {
+                    changeColor(NA);
+                }
+                else
+                {
+                    changeColor("None");
+                }
+            })
+        }
+        
+        const mouseleave = function(event,d) {
+            tooltip
+            .style("opacity", 0)
+            .style("z-index","-1")
+            d3.select(this)
+            .style("stroke", "none")
+            .style("opacity", 0.8)
+        }
 
         // Set up the map projection
         const projection = d3.geoWinkel3()
-        .scale(150)
-        .translate([200, 300]);
+        .scale(100)
+        .translate([width/2, height/2+10]);
 
-        let svg = d3.select(".world_map");
         let path = d3.geoPath().projection(projection);
-
+        
         svg.selectAll("path").data(json.features)
             .join("path")
             .attr("d", (path))
-            .attr("fill", "#ffffff")
+            .attr("fill", "lightgray")
+            .attr("opacity",0.8)
+            .attr("stroke","none")
+            .attr("stroke-width","0px")
+            .on("mouseout",function(){
+                let allPath = d3.select(".world_map").select("svg").selectAll("path").attr("fill","gray");
+            })
+            .on("mouseover", mouseover)
+            .on("mouseleave", mouseleave)
+        
+        // text
+        svg.append("text").text("Sales by Regions").attr("transform","translate(20,20)").attr("fill","black").attr("font-size","14");
+        svg.append("text").text("Global").attr("transform","translate(20,40)").attr("fill","gray").attr("font-size","12")
 
     }
 
     donutCreate(){
-        let vgsalesData = this.vgsalesData
 
-        // donut chart
+        // data
+        let vgsalesData = this.vgsalesData;
+
         let Sales = {
             "EU":0,
             "JP":0,
@@ -76,29 +185,42 @@ class MapVis {
             return d.value;
         });
 
+        // pie data
         let pieData = pie(Sales.slice(0,4));
 
-        console.log(Sales.slice(0,4))
-
+        // radius
         let arc = d3.arc();
-        arc.outerRadius(150);
-        arc.innerRadius(120);
+        arc.outerRadius(80);
+        arc.innerRadius(60);
 
-        d3.select(".pie").style("background-color","white").style("width", "95%")
-        .style("height", "100%").style("border-radius","25px").style("margin-top","10px").style("margin-left","10px").style("box-shadow","0px 5px 15px lightgray")
+        // div css
+        // out
+        d3.select(".pie").style("width","80%").style("height","90%")
+                         .style("background-color","#f6f4f0")
+                         .style("margin-left","50px").style("margin-top","30px")
+                         .style("border-radius","25px")
+                         .style("box-shadow","8px -8px 0px #e6e4e2");
 
-        d3.select(".pie").select("svg").attr("width", "100%")
-        .attr("height", "100%");
+        // in
+        d3.select(".pie").select("div").style("width","80%").style("height","75%")
+                         .style("background-color","white")
+                         .style("margin-left","45px").style("margin-top","70px")
+                         .style("border-radius","25px");
+        
+        // svg css
+        d3.select(".pie").select("svg").attr("width","100%").attr("height","100%");
 
-        let width = 210.35
-        let height = 438
+        // basic info
+        let width = document.getElementsByClassName("pieSvg")[0].clientWidth;
+        let height = document.getElementsByClassName("pieSvg")[0].clientHeight;
 
+        // donut chart 
         let SalesInfo = [["Global",0],["1000",16]]
 
-        this.colorScale = d3.scaleOrdinal().domain(Sales.map(d=>d.region)).range(["#66c2a5","#f88d62","#8da0cb","#e78ac3","#a6d854"]);
+        this.colorScale = d3.scaleOrdinal().domain(Sales.map(d=>d.region)).range(["#1e2d4a","#989784","#b5b09a","#e3e0d4","#efeee5"]);
 
-        let piep = d3.select(".pie").select("svg").selectAll("g").data(pieData).join("g").attr('transform', `translate (${width-30}, ${height/2})`);
-        let pieText = d3.select(".pie").select("svg").selectAll("text").data(SalesInfo).join("text").text(d=>d[0]).attr('transform', (d,i)=>`translate (${width-60+d[1]}, ${height/2+30*i})`).attr("font-size","20");
+        let piep = d3.select(".pie").select("svg").select(".pieChart").selectAll("g").data(pieData).join("g").attr('transform', `translate (${width-110}, ${height/2-10})`);
+        let pieText = d3.select(".pie").select("svg").select(".pieChart").selectAll("text").data(SalesInfo).join("text").text(d=>d[0]).attr('transform', (d,i)=>`translate (${width-140+d[1]}, ${height/2-10+20*i})`).attr("font-size","16");
 
 
         function arcTween(a) {
@@ -112,171 +234,230 @@ class MapVis {
         piep.selectAll("path").data(d=>[d]).join("path")
             .style("fill", d => this.colorScale(d.data.value)).transition().duration(1000)
             .attrTween("d", arcTween)
+
+        // donut label
+        d3.select(".pie").select("svg").select(".label").selectAll("circle").data(Sales.slice(0,4)).join("circle").attr("r",6).attr("transform",(d,i)=>`translate(40,${i*30+80})`).attr("fill",d=>this.colorScale(d.region))
+        d3.select(".pie").select("svg").select(".label").selectAll("text").data(Sales.slice(0,4)).join("text").attr("r",6).attr("transform",(d,i)=>`translate(55,${i*30+85})`).text(d=>d.region)
     }
 
-    barCreate(){
-        let vgsalesData = this.vgsalesData;
-        let height = 340;
-        let width = 200;
-        let moveX = 50;
-
-        let genereGrouped = d3.group(vgsalesData, (d)=>d.Genre);
-
-        d3.select(".line").style("background-color","white").style("width", "98%")
-        .style("height", "100%").style("border-radius","25px").style("margin-top","10px").style("margin-left","10px").style("box-shadow","0px 5px 15px lightgray")
+    heatmapCreate(vgsalesData){
+        // basic
+        let svg = d3.select(".small").attr("transform","translate(0,0)").select(".heatmap").attr("transform","translate(75, 20)")
+        let rectwidth = document.getElementsByClassName("small")[0].clientWidth-130;
+        let rectheight = 365-100;
         
-        let svg = d3.select(".line").select("svg").attr("width","100%").attr("height","100%");
-        let xg = svg.select(".xAxis").attr('transform', `translate (${moveX}, 400)`);
-        let yg = svg.select(".yAxis").attr('transform', `translate (${moveX}, 60)`);
+        // x label name
+        let Year = d3.group(vgsalesData,d=>d.Year).keys();
+        let yearLabel = []
+        d3.map(Year, d=>yearLabel.push(d))
+        yearLabel.sort((a,b)=>a-b)
+        this.yearLabel = yearLabel;
+        
+        // y label name
+        let Genre = d3.group(vgsalesData,d=>d.Genre).keys();
+        let genreLabel = []
+        d3.map(Genre, d=>genreLabel.push(d))
+        this.genreLabel = genreLabel;
 
-        // x
-        let genereName = genereGrouped.keys();
-        let xrange = []
-        let i = 0
-        for (let j = 0; j<13; j++)
-        {
-          xrange.push(i);
-          i+= width/13;
+        // data
+        vgsalesData.sort((a,b)=>a-b);
+        let YGData = []
+        yearLabel.forEach(j=>{
+            genreLabel.forEach(i=>{
+                let Global_Sales = 0;
+
+                vgsalesData.filter(d=>{
+                    if(d.Year===j && d.Genre===i)
+                    {
+                       Global_Sales += parseFloat(d.Global_Sales)
+                    }
+                })
+
+                let data = {
+                    Year:j,
+                    Genre:i,
+                    Global_Sales:Global_Sales,
+                }
+                YGData.push(data)
+            })
+        })      
+
+        this.YGData = YGData;
+
+        // create a tooltip
+        var tooltip = d3.select(".chartsDown").select("div")
+                        .append("div")
+                        .style("opacity", 0)
+                        .attr("class", "tooltip")
+                        .style("background-color", "white")
+                        .style("border", "solid")
+                        .style("border-width", "2px")
+                        .style("border-radius", "5px")
+                        .style("padding", "5px")
+                        .style("position","absolute")
+                        .style("z-index","2")
+        
+        // Three function that change the tooltip when user hover / move / leave a cell
+        const mouseover = function(event,d) {
+            tooltip
+            .style("opacity", 1)
+            .style("z-index","2")
+            d3.select(this)
+            .style("stroke", "black")
+            .style("opacity", 1)
+        }
+        const mousemove = function(event,d) {
+            console.log(d)
+            if(event.clientX>1000)
+            {
+                tooltip
+                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .style("left", (event.clientX)-750 + "px")
+                .style("top", (event.clientY)-180 + "px")
+            }
+            else{
+                tooltip
+                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .style("left", (event.clientX)-600 + "px")
+                .style("top", (event.clientY)-180 + "px")
+            }
+        }
+        const mouseleave = function(event,d) {
+            tooltip
+            .style("opacity", 0)
+            .style("z-index","-1")
+            d3.select(this)
+            .style("stroke", "none")
+            .style("opacity", 0.8)
         }
 
-        let Xscale = d3.scaleBand().domain(genereName).range([0,480]).paddingInner([10]);
-      
+        // Build X scales and axis:
+        var x = d3.scaleBand()
+                  .range([0, rectwidth])
+                  .domain(yearLabel)
+                  .padding(0.05);
+        this.x = x;
+
         let XAxis = d3.axisBottom();
-        XAxis.scale(Xscale)
-        xg.call(XAxis)
+        XAxis.scale(x)
+        d3.select(".small").select(".xAxis").call(XAxis).attr("transform",`translate(75, 0)`).style("font-size","9");
+        d3.select(".small").select(".xAxis").selectAll("line").attr("visibility","hidden");
+        d3.select(".small").select(".xAxis").selectAll("path").attr("visibility","hidden");
+        let xtext = d3.select(".small").select(".xAxis").selectAll("text");
+        xtext = xtext._groups[0];
+        xtext.forEach((d,i)=>{
+            if(i%5!=0)
+            {
+                d3.select(d).attr("visibility","hidden");
+            }
+        })
+
+         // Build Y scales and axis:
+        var y = d3.scaleBand()
+                  .range([rectheight, 0 ])
+                  .domain(genreLabel)
+                  .padding(0.05);
         
+        let YAxis = d3.axisLeft();
+        YAxis.scale(y)
+        d3.select(".small").select(".yAxis").call(YAxis).attr("transform","translate(75, 20)").style("font-size","9");
+        d3.select(".small").select(".yAxis").selectAll("line").attr("visibility","hidden");
+        d3.select(".small").select(".yAxis").selectAll("path").attr("visibility","hidden");
+
+        // Build color scale
+        let salesMax = d3.max(YGData,d=>d.Global_Sales)
+
+        var myColor = d3.scaleSequential()
+                        .interpolator(d3.interpolateReds)
+                        // .interpolatord3(interpolateRgb(a, b))
+                        .domain([0,salesMax])
+
+
+        svg.selectAll()
+            .data(YGData)
+            .enter()
+            .append("rect")
+            .attr("x", function(d) { return x(d.Year) })
+            .attr("y", function(d) { return y(d.Genre) })
+            .attr("rx", 2)
+            .attr("ry", 2)
+            .attr("width", x.bandwidth() )
+            .attr("height", y.bandwidth() )
+            .style("fill", function(d) { return myColor(d.Global_Sales)} )
+            .style("stroke-width", .2)
+            .style("stroke", "lightgray")
+            .style("opacity", 0.8)
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave)
+        
+    }
+
+    lineCreate(vgsalesData){
+        // let pHeight = document.getElementsByClassName("chartsDown")[0].clientHeight;
+
+        let svg = d3.select(".lineChart").attr("width","100%").attr("height",370).select(".line").attr("width","100%").attr("height","100%").attr("transform","translate(85.45, 15)");
+        let height = document.getElementsByClassName("line")[0].clientHeight;
+        let width = document.getElementsByClassName("line")[0].clientWidth;
+
+        // data
+        let YGData = this.YGData;
+        
+        let YGDataSum = [];
+
+        let yearLabel = this.yearLabel;
+        let genreLabel = this.genreLabel;
+
+        // data
+        vgsalesData.sort((a,b)=>a-b);
+        yearLabel.forEach(j=>{
+            
+            let Global_Sales = 0;
+
+            vgsalesData.filter(d=>{
+                if(d.Year===j)
+                {
+                    Global_Sales += parseFloat(d.Global_Sales)
+                }
+            })
+
+            let data = {
+                Year:j,
+                Global_Sales:Global_Sales,
+            }
+            YGDataSum.push(data)
+
+        })      
+        this.YGDataSum = YGDataSum;
+
+        // Build X scales and axis:
+        let rectwidth = 967-130;
+        var x = d3.scaleBand()
+                  .range([0, rectwidth])
+                  .domain(yearLabel)
+                  .padding(0.05);
 
         // y
-        let Yscale = d3.scaleLinear().domain([0, d3.max(genereGrouped, d=>d[1].length)]).range([height, 0]).nice();
-        let YAxis = d3.axisLeft().tickSize(-500);
-        YAxis.scale(Yscale)
-        yg.call(YAxis)
-        yg.select("path").attr("visibility","hidden");
-        yg.selectAll("line").attr("stroke-dasharray","1 1").attr("stroke","lightgray")
+        let y = d3.scaleLinear()
+                  .range([350, 0 ])
+                  .domain([0, d3.max(YGDataSum, d=>d.Global_Sales)])
+        let YAxis = d3.axisLeft();
+        YAxis.scale(y)
+        d3.select(".lineChart").select(".yAxis").call(YAxis).attr("transform","translate(70,15)")
+        d3.select(".lineChart").select(".yAxis").selectAll("line").attr("stroke-dasharray","1 1").attr("stroke","lightgray").attr("x2","820");
+        d3.select(".lineChart").select(".yAxis").selectAll("path").attr("visibility","hidden");
         
-        svg.selectAll("rect").data(genereGrouped).join("rect")
-                                                 .attr("x",(d,i)=>Xscale(d[0])+moveX)
-                                                 .attr("y",(d,i)=>Yscale(d[1].length)+10)
-                                                 .attr("width", width/13)
-                                                 .attr("height", d=>height-Yscale(d[1].length))
-                                                 .attr("fill","lightblue")
-                                                 .attr("transform","translate(0,50)")
-
-        xg.selectAll("text").attr("transform","rotate(-45) translate(-20,-1)").attr("font-size","8");
-        xg.select("path").attr("visibility","hidden");
-        xg.selectAll("line").attr("visibility","hidden");
 
 
-
-    }
-
-    lineCreate(){
-        let vgsalesData = this.vgsalesData;
-        let overViewheight = 30;
-        let width = 950;
-        let moveX = 50;
-
-        d3.select(".chartsDown").style("background-color","white").style("width", "99%")
-        .style("height", "100%").style("border-radius","25px").style("margin-top","10px").style("margin-left","10px").style("box-shadow","0px 5px 15px lightgray")
-        
-        // sort by date
-        vgsalesData.sort((a,b)=>d3.ascending(Math.abs(a["Year"]), Math.abs(b["Year"])));
-        let yearGrouped = d3.group(vgsalesData, (d)=>d.Year);
-        console.log(yearGrouped)
-
-        // overView create
-        let svgOver = d3.select(".chartsDown").select(".overView").attr("width","100%").attr("height","20%").select(".area");
-        let yearName = yearGrouped.keys();
-        let xrange = []
-        let i = 0
-        for (let j = 0; j<43; j++)
-        {
-          xrange.push(i);
-          i+= width/43;
-        }
-
-        let Xscale = d3.scaleOrdinal().domain(yearName).range(xrange);
-        let XAxis = d3.axisBottom();
-        XAxis.scale(Xscale)
-        d3.select(".chartsDown").select(".overView").select(".xAxis").attr("transform","translate(20,130)").call(XAxis)
-
-        let textg = d3.select(".chartsDown").select(".overView").select(".xAxis").selectAll("g");
-        textg._groups[0].forEach((d,i)=>{
-            if((i)%5!=0)
-                d3.select(d).attr("visibility","hidden");
-            else
-                d3.select(d).select("line").attr("visibility","hidden");
-        })
-        d3.select(".chartsDown").select(".overView").select(".xAxis").select("path").attr("visibility","hidden");
-
-
-        let Yscale = d3.scaleLinear().domain([0, d3.max(yearGrouped, d=>d[1].length)]).range([overViewheight, 0]).nice();
-
-        let areaGeneratorA = d3.area()
-                               .x(d => Xscale(d[0]))
-                               .y0(0)
-                               .y(overViewheight);
-
-        let areaGeneratorB = d3.area()
-                                .x(d => Xscale(d[0]))
-                                .y0(overViewheight)
-                                .y1(d => Yscale(d[1].length));
-        
-        svgOver.select("path")
-            .datum(yearGrouped)
-            .attr("d", areaGeneratorA)
-            .transition().duration(3000)
-            .attr("d", areaGeneratorB)
-            .attr("transform","translate(0,0)")
-            .attr("fill","lightblue")
-        
-        
-        // small create
-        let smallheight = 240;
-
-        let svgSmall = d3.select(".chartsDown").select(".small").attr("width","100%").attr("height","80%").select(".lines");
-
-        let genereGrouped = d3.group(vgsalesData, (d)=>d.Genre);
-
-        console.log(genereGrouped)
-
+        // create line
         const lineGenerator = d3.line()
-                                .x(d=>Xscale(d[0]))
-                                .y(d=>YscaleSmall(d[1].length))
+                                .x(d=>x(d.Year))
+                                .y(d=>y(d.Global_Sales))
 
-        let path = svgSmall.selectAll("path").data(genereGrouped).join("path");
-
-        let maxY = 0;
-        genereGrouped = [...genereGrouped]
-        genereGrouped.forEach(item=>{
-            let year = d3.group(item[1],d=>d["Year"])
-            if(d3.max([...year],d=>d[1].length)>maxY)
-                maxY = d3.max([...year],d=>d[1].length);
-        })
-
-        let YscaleSmall = d3.scaleLinear().domain([0, maxY]).range([smallheight, 0]).nice();
-
-        path._groups[0].forEach((item,i)=>{
-            let yeargrouped = d3.group(genereGrouped[i][1],d=>d["Year"])
-            console.log([...yeargrouped])
-
-            d3.select(item).datum([...yeargrouped]).attr("d",lineGenerator).attr("stroke", "lightblue")
-            .attr("stroke-width", 1.5).attr("transform","translate(0,10)").attr("fill","none");
-        })
+        svg.select("path").datum(YGDataSum).attr("d", lineGenerator)
+           .attr("stroke", "#cc0000")
+           .attr("stroke-width", 1.5)
+           .attr("fill","none")
         
     }
-
-    zoomCreate(){
-        let zoom = d3.zoom().on('zoom', this.handleZoom);
-
-        d3.select(".chartsDown").select(".small").call(zoom);
-
-    }
-
-    fhandleZoom(e) {
-        // apply transform to the chart
-        d3.select(".chartsDown").select(".small").attr('transform', e.transform);
-        console.log(1)
-    }
-
 }

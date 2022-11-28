@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./fontawesome-free-6.2.0-web/css/fontawesome.css" rel="stylesheet">
+    <link href="./fontawesome-free-6.2.0-web/css/brands.css" rel="stylesheet">
+    <link href="./fontawesome-free-6.2.0-web/css/solid.css" rel="stylesheet">
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-geo-projection.v4.js"></script>
+    <script src="https://d3js.org/topojson.v3.js"></script>
+
+    <link href="./cw.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Quicksand" />
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css" />
+    <script rel="stylesheet" type="text/javascript" href="//cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script rel="stylesheet" type="text/javascript" href="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://kit.fontawesome.com/d2d4639bf3.js" crossorigin="anonymous"></script>
+
+    <script src="./cw.js"></script>
+    <script src="./script.js"></script>
+
+    <title>Document</title>
+    <style>
+        * {
+            font-family: 'Quicksand';
+            font-weight: bold;
+            position: relative;
+            z-index: auto;
+        }
+
+        .tabelInfo{
+            display: grid;
+            grid-template-rows: .5fr 10fr .5fr;
+            gap: 10px;
+        }
+
+        .tableMain::-webkit-scrollbar {
+            height: 10px;               /* width of the entire scrollbar */
+            width: 10px;
+        }
+
+        .tableMain::-webkit-scrollbar-thumb{
+            border-radius: 2px;
+            background-color: #c5c5c5;
+        }
+        .btnBox{
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+        }
+        .btn{
+            width: 40px;
+            height: 20px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 12px;
+            background-color: #fff;
+            padding-bottom: 27px;
+        }
+        #mainTable td{
+            border-bottom: .5px solid #DADADA;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="nav_wrapper">
+        <a href="./main.html" class="now_page">
+            <i class="fa-solid fa-angle-left" ></i>
+            Character workshops
+        </a>
+        <a href="./home.html" class="app__link app-link is-active" title="Characters">
+            Home
+        </a>
+        <a href="./map/map.html" class="app__link app-link is-active" title="Characters">
+            Maps
+        </a>
+        <a href="./achievement/achievements.html" class="app__link app-link" title="Locations">
+            Achievements
+        </a>
+        <!-- <a data-fancybox="" data-src="#panel-about" href="javascript:;" class="app__link" title="About">
+            About
+        </a> -->
+    </div>
+
+    <div class="body_wrapper" style="background-color:#f6f5fa">
+        <div class="leftTable" style="width:95%; height:98%; margin-left: 15px; margin-top: 10px; border-radius: 15px; background-color: #ffffff;">
+            <div class="tabelInfo" style="width:100%; height:100%;">
+                <div clss="headName">
+                    <div style="float: left; padding-left: 20px; font-size: 20px; padding-top: 10px;"><text>Data Table</text></div>
+                </div>
+    
+                <div class="tableMain" style="overflow-x:scroll; overflow-y: scroll;">
+                    <table id="mainTable" style="border-collapse: collapse;">
+                        <thead>
+                        <tr id="columnHeaders" style="font-size: 14px; height: 50px; background-color:#F6F4F0;">
+                            <th class="sortable">Name<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">Platform<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">Year<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">Genre<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">Publisher<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">NA<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">EU<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">JP<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">Other<i class="fa-solid fa-sort"></i></th>
+                            <th class="sortable">Global<i class="fa-solid fa-sort"></i></th>
+                        </tr>
+                        <!-- <tr class="info">
+                            <td></td>
+                            <td><svg id="marginAxisF"></svg></td>
+                            <td><svg id="marginAxisP"></svg></td>
+                            <td></td>
+                        </tr> -->
+                        </thead>
+                        <tbody id="mainTableBody">
+            
+                        </tbody>
+                    </table>
+                </div>
+    
+                <div class="pagination">
+                    <div class="paginationInfo" style="width: 450px; height:100%; float:left; text-align: left;">
+                        <text></text>
+                    </div>
+                    <div class="btnBox" style="padding-right:10px; padding-bottom:20px; float:right;">
+                        <button class="btn left"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="btn right"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div clss="charts" style="background-color: ;">
+
+        </div>
+    </div>
+</body>
+</html>
