@@ -13,14 +13,19 @@ async function process(data) {
         let height = margin.top + barSize * n + margin.bottom;
         let width = 1200;
         const svg = d3.select('#canvas').append("svg")
-            .attr("viewBox", [0, 0, width, height]);
+            .attr("viewBox", [0, 0, width, height])
+            .attr("transform", `translate(${margin.left+20},${margin.top})`);
         //////
         let duration = 250;
         let names = new Set(data.map(d => d.name));
         let datevalues = Array.from(d3.rollup(data, ([d]) => d.value, d => new Date(d.date).getTime(), d => d.name))
             .map(([date, data]) => [new Date(date), data])
             .sort(([a], [b]) => d3.ascending(a, b));
-
+        
+        // filter Invalid Date
+        datevalues = datevalues.filter(([date]) => !isNaN(date));
+        // filter 2020
+        datevalues = datevalues.filter(([date]) => date.getFullYear() < 2016);
         console.log(datevalues)
         function rank(value) {
             const data = Array.from(names, function (name) {
@@ -138,13 +143,14 @@ async function process(data) {
 
         function ticker(svg) {
             const now = svg.append("text")
-                .style("font", `bold ${barSize}px var(--sans-serif)`)
-                .style("font-variant-numeric", "tabular-nums")
+                .attr("font-size", "100px")
+                // .style("font-variant-numeric", "tabular-nums")
                 .attr("text-anchor", "end")
                 .attr("x", width - 6)
                 .attr("y", margin.top + barSize * (n - 0.45))
-                .attr("dy", "0.32em")
-                .text(formatDate(keyframes[0][0]));
+                // .attr("dy", "0.32em")
+                .text(formatDate(keyframes[0][0]))
+                .style("fill", "gray")
 
             return ([date], transition) => {
                 transition.end().then(() => now.text(formatDate(date)));
@@ -172,7 +178,7 @@ async function process(data) {
             .rangeRound([margin.top, margin.top + barSize * (n + 1 + 0.1)])
             .padding(0.1)
         //////
-
+        
         const updateBars = bars(svg);
         const updateAxis = axis(svg);
         const updateLabels = labels(svg);
@@ -187,7 +193,6 @@ async function process(data) {
 
             // Extract the top bar’s value.
             x.domain([0, keyframe[1][0].value]);
-
             updateAxis(keyframe, transition);
             updateBars(keyframe, transition);
             updateLabels(keyframe, transition);
