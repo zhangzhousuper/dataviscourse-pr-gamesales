@@ -159,7 +159,7 @@ function d3waffle() {
           // console.log(data);
           el = data.filter(function(a) { return a[0] == d.name; })[0];
           // console.log(el)
-          txt = "<b>" +el[0] + "</b><br>" + d3.format(',')(el[1] ) + "<br>(" + d3.format(".0%")(el.percent) + ")"
+          txt = "<b>" +el[0] + "</b><br>" + d3.format(',')(el[1].toFixed(2) ) + "<br>(" + d3.format(".0%")(el.percent) + ")"
           // console.log(txt)
           tooltip.html(txt);
   
