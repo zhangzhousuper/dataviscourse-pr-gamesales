@@ -3,7 +3,7 @@
   <style>
     #canvas {
     height: 800px;
-    width: 1200px;
+    width: 1300px;
 }
 * {
                 font-family: 'Quicksand';
@@ -46,6 +46,17 @@
             About
         </a>
     </div>
-    <div id="canvas" style="background-color:#f6f5fa"></div>
+    <div id="observablehq-chart-052eb3bb"></div>
+  <div id="observablehq-viewof-keyframe-052eb3bb"></div>
+  
+  <script type="module">
+  import {Runtime, Inspector} from "https://cdn.jsdelivr.net/npm/@observablehq/runtime@5/dist/runtime.js";
+  import define from "https://api.observablehq.com/@zhangzhousuper/bar-chart-race-with-scrubber.js?v=4";
+  new Runtime().module(define, name => {
+    if (name === "chart") return new Inspector(document.querySelector("#observablehq-chart-052eb3bb"));
+    if (name === "viewof keyframe") return new Inspector(document.querySelector("#observablehq-viewof-keyframe-052eb3bb"));
+    return ["update"].includes(name);
+  });
+  </script>
 </body>
 </html>
