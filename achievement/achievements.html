@@ -12,8 +12,10 @@
     <script src = "achievementChart.js" ></script>
     <script src="script.js"></script>
     <script src="d3-waffle.js"></script>
-    <link href="../CSS/fundemental.css" rel="stylesheet">
+    <!-- <link href="../CSS/fundemental.css" rel="stylesheet"> -->
     <link href="./achievement.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Quicksand" />
     <title>Document</title>
     <style>
         
@@ -23,8 +25,26 @@
                 position: relative;
                 z-index: auto;;
         }
+        #title {
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;}
         
-        </style>
+        select {
+            font-size: 12px;
+            border-radius: 10px;
+            padding: 6px 4px;
+            border: 1px solid #d7d7d7;
+            background: #fff;
+            /* background: rgba(0,0,0,0) url(../../../assets/images/down-arrow.png) no-repeat scroll calc(5% + 3px) center/8px auto; */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            color: #939598;
+        }
+    </style>
 </head>
 <body>
     <div class="toolbox">
@@ -48,7 +68,8 @@
             About
         </a>
     </div>
-
+    <div id = "title" id = "title" ></div>
+        
     <div class="body_wrapper" >
         <div class="achievement_chart">
             <svg class="achievement_chart_svg">
@@ -56,15 +77,16 @@
             
         </div>
         <div class="achievement_info" >
-            <svg class="achievement_info_svg">
-                <g id="achievement_info_waffle_chart">
-                </g>
-            </svg>
             <select id="achievement_info_select">
                 <option value="Sales">Sales</option>
                 <option value="Genres">Genres</option>
                 <option value="Platform">Platform</option>
-            </select>  
+            </select> 
+            <svg class="achievement_info_svg">
+                <g id="achievement_info_waffle_chart">
+                </g>
+            </svg>
+             
         </div>
         
     </div>
