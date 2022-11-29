@@ -40,6 +40,7 @@ class achievementChart {
         let innerWidth = 800 - margin.left - margin.right;
         let innerHeight = 300 - margin.top - margin.bottom;
         this.infoSvg = d3.select(".achievement_info_svg")
+        //attribute the width and height wh
             .attr("width", 1200)
             .attr("height", 800)
             .attr("transform", `translate(${100}, ${margin.top})`);
@@ -56,7 +57,8 @@ class achievementChart {
         // this.g.append("path").attr("id", "achievement_info_sales_chart_line");
         this.g.append("g").attr("id", "achievement_info_sales_chart_tooltip");
         this.dropDown = d3.select("#achievement_info_select");
-        document.getElementById("achievement_info_select").setAttribute("style","transform: translate(" + 800 + "px," + -800 + "px)");
+        //move the dropdown just above the waffle box
+        document.getElementById("achievement_info_select").setAttribute("style", "position: relative; top: 0px; left: 200px;");
         this.company = "Nintendo";
         this.dropDown.on("change", () => {
            console.log(this.dropDown.property("value"));

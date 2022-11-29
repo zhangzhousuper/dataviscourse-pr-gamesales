@@ -20,10 +20,11 @@ body { margin: 0px; padding: 0px; }
     background-color: #f6f5fa;
 }
 .body_wrapper {
-    display: grid;
-    grid-template-columns: 2fr 3.5fr;
-    height:740px;
-    background-color: white;
+    width: auto;
+    height: auto;
+    padding: 10px;
+    margin: 10px;
+    background-color:#f6f5fa;
     text-align: center;
     text-transform: uppercase;
 }
