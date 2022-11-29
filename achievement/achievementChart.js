@@ -56,7 +56,7 @@ class achievementChart {
         // this.g.append("path").attr("id", "achievement_info_sales_chart_line");
         this.g.append("g").attr("id", "achievement_info_sales_chart_tooltip");
         this.dropDown = d3.select("#achievement_info_select");
-        document.getElementById("achievement_info_select").setAttribute("style","transform: translate(" + 100 + "px," + 5 + "px)");
+        document.getElementById("achievement_info_select").setAttribute("style","transform: translate(" + 800 + "px," + -800 + "px)");
         this.company = "Nintendo";
         this.dropDown.on("change", () => {
            console.log(this.dropDown.property("value"));
