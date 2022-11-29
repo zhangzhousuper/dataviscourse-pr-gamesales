@@ -48,6 +48,7 @@ class achievementChart {
         this.g = this.infoSvg.append("g")
             .attr("id", "achievement_info_sales_chart")
             .attr("transform", `translate(${margin.left + 30}, ${margin.top + 260})`);
+        
         this.g.append("g").attr("id", "achievement_info_sales_chart_y_axis")
             .attr("transform", `translate(0, 0)`);
         this.g.append("g").attr("id", "achievement_info_sales_chart_x_axis")
@@ -284,6 +285,7 @@ class achievementChart {
             .keys(["NA_Sales", "EU_Sales", "JP_Sales", "Other_Sales"])
         // console.log(stack(salesDataByYearArray));
 
+        
         let stackBar = d3.select("#achievement_info_sales_chart")
         let groups = stackBar.append("g")
         
@@ -302,7 +304,32 @@ class achievementChart {
                     return "red";
                 }
             })
+        
+        // add zoom feature
+        let zoom = d3.zoom()
+            .scaleExtent([1, 100])
+            .translateExtent([[0, 0], [innerWidth, innerHeight]])
+            .extent([[0, 0], [innerWidth, innerHeight]])
+            .on("zoom", zoomed);
 
+        
+        let focus = d3.select("#achievement_info_sales_chart").append("rect")
+        .attr("class", "zoom")
+        .style("fill", "none")
+        .style("pointer-events", "all")
+            .attr("width", 800)
+            .attr("height", 250)
+            .attr("transform", `translate(${0}, ${0})`)
+            .lower();
+        focus.call(zoom);
+        
+        d3.select("#achievement_info_sales_chart").append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", innerWidth)
+            .attr("height", innerHeight);
+
+        
         groups.selectAll("rect")
             .data(d => d)
             .join("rect")
@@ -310,6 +337,7 @@ class achievementChart {
             .attr("y", d => yScale(d[1]))
             .attr("height", d => yScale(d[0]) - yScale(d[1]))
             .attr("width", xScale.bandwidth())
+            .attr("clip-path", "url(#clip)")
             // .attr("transform", `translate(${xScale.bandwidth() / 2}, 0)`)
             .on("mouseover", function(e, d) {
                 // console.log(d);
@@ -334,7 +362,24 @@ class achievementChart {
                 const subGroupName = d3.select(this.parentNode).datum().key;
                 c_this.drawDistributionWaffle(company, "Genres", d.data.year, subGroupName);
                 c_this.updateInfoCard(company, d.data.year, subGroupName);
-            })
+            });
+
+            
+
+            function zoomed(e) {
+                console.log(e.transform);
+                // console.log(xScale);
+                xScale.range([0, innerWidth].map(d => e.transform.applyX(d)));
+                let new_yScale = e.transform.rescaleY(yScale);
+                d3.select("#achievement_info_sales_chart_x_axis").call(xAxis.scale(xScale));
+                d3.select("#achievement_info_sales_chart_y_axis").call(yAxis.scale(new_yScale));
+                groups.selectAll("rect")
+                    .attr("x", d => xScale(d.data.year))
+                    .attr("y", d => new_yScale(d[1]))
+                    .attr("height", d => new_yScale(d[0]) - new_yScale(d[1]))
+                    .attr("width", xScale.bandwidth());
+            }
+
     }
 
     updateSalesChart(company) {
@@ -473,8 +518,6 @@ class achievementChart {
     
 
     drawDistributionWaffle(company, selection,year, region) {
-        // console.log(year);
-        // console.log(region);
         let data = this.data;
         let margin = {top: 20, right: 20, bottom: 20, left: 20};
         let innerWidth = 800 - margin.left - margin.right;
@@ -491,12 +534,6 @@ class achievementChart {
             let euSales = d3.sum(salesData, d => d.EU_Sales);
             let jpSales = d3.sum(salesData, d => d.JP_Sales);
             let otherSales = d3.sum(salesData, d => d.Other_Sales);
-            // let saleDistribution = {
-            //     naSales: naSales / totalSales,
-            //     euSales: euSales / totalSales,
-            //     jpSales: jpSales / totalSales,
-            //     otherSales: otherSales / totalSales
-            // }
             let saleDistribution = {
                 naSales: naSales ,
                 euSales: euSales,
