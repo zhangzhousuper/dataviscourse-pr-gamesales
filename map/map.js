@@ -251,7 +251,9 @@ class MapVis {
         let yearLabel = []
         d3.map(Year, d=>yearLabel.push(d))
         yearLabel.sort((a,b)=>a-b)
-        this.yearLabel = yearLabel;
+        yearLabel = yearLabel.slice(0,40); // truncate
+        this.yearLabel = yearLabel
+        console.log(this.yearLabel)
         
         // y label name
         let Genre = d3.group(vgsalesData,d=>d.Genre).keys();
@@ -393,6 +395,26 @@ class MapVis {
         
     }
 
+    scaleBandInvert(scale) {
+        var domain = scale.domain();
+        var paddingOuter = scale(domain[0]);
+        var eachBand = scale.step();
+        return function (value) {
+          var index = Math.floor(((value - paddingOuter) / eachBand));
+          var flag = true;
+
+
+          if((((value - paddingOuter) / eachBand)-index)<0.85 && (((value - paddingOuter) / eachBand)-index)>0.65)
+            flag = true;
+          else
+            flag = false;
+
+        console.log((((value - paddingOuter) / eachBand)-index))
+
+          return [domain[Math.max(0,Math.min(index, domain.length-1))], flag];
+        }
+      }
+
     lineCreate(vgsalesData){
         // let pHeight = document.getElementsByClassName("chartsDown")[0].clientHeight;
 
@@ -458,6 +480,83 @@ class MapVis {
            .attr("stroke", "#cc0000")
            .attr("stroke-width", 1.5)
            .attr("fill","none")
+
+        // hoverLine
+        // create a tooltip
+        var tooltip = d3.select(".chartsDown").select("div")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "2px")
+        .style("border-radius", "5px")
+        .style("padding", "5px")
+        .style("position","absolute")
+        .style("z-index","2")
+
+        const mouseleave = function(event,d) {
+            tooltip
+            .style("opacity", 0)
+            .style("z-index","-1")
+            d3.select(this)
+            .style("stroke", "none")
+            .style("opacity", 0.8)
+        }
+
+        const mouseover = function(event,d) {
+            tooltip
+            .style("opacity", 1)
+            .style("z-index","2")
+            d3.select(this)
+            // .style("stroke", "black")
+            .style("opacity", 1)
+        }
+
+        d3.select(".lineChart").on("mousemove",(event)=>{
+            let nowX = event.offsetX;
+
+            let all = this.scaleBandInvert(x)(nowX-70)
+            let xYear = all[0]-0;
+            let flag = all[1];
+
+            let yPosition = 0;
+
+            let d = 0;
+
+            YGDataSum.forEach(item=>{
+                if(parseFloat(item.Year) === xYear)
+                {
+                    yPosition = y(item.Global_Sales)+15;
+                    d = item;
+                }
+            })
+
+            if(flag === true)
+                d3.select(".overlay").select("circle").attr("r",3).attr("cx",nowX).attr("cy",yPosition).attr("stroke-wdith","2").attr("fill","red")
+
+            // Three function that change the tooltip when user hover / move / leave a cell
+            
+            console.log(event.clientX)
+            if(event.clientX>1000)
+            {
+                tooltip
+                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .style("left", (event.clientX)-750 + "px")
+                .style("top", (event.clientY)-180 + "px")
+                .style("opacity",1)
+            }
+            else{
+                tooltip
+                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .style("left", (event.clientX)-750 + "px")
+                .style("top", (event.clientY)-100 + "px")
+                .style("opacity",1)
+            }
+        })
+        .on("mouseover", mouseover)
+        .on("mouseleave", mouseleave)
         
     }
+    
 }
