@@ -380,6 +380,12 @@ class achievementChart {
                     .attr("y", d => new_yScale(d[1]))
                     .attr("height", d => new_yScale(d[0]) - new_yScale(d[1]))
                     .attr("width", xScale.bandwidth());
+                d3.select("#achievement_info_sales_chart_x_axis").selectAll("text")
+                    .attr("transform", "rotate(-45)")
+                    .attr("y", 0)
+                    .attr("x", 0)
+                    .attr("dy", "1em")
+                    .style("text-anchor", "end");
             }
 
     }
