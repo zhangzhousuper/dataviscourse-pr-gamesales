@@ -64,6 +64,18 @@
             border-bottom: .5px solid #DADADA;
         }
 
+        .rightCharts{
+            display: grid;
+            grid-template-rows: .5fr 10fr .5fr;
+            gap: 10px;
+        }
+
+        .headInfo{
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 2px;
+        }
+
     </style>
 </head>
 <body>
@@ -133,8 +145,67 @@
             </div>
         </div>
 
-        <div clss="charts" style="background-color: ;">
+        <div clss="charts" style="background-color: #f6f5fa;">
+            <div class="rightCharts" style="width:98%; height:98%;border-radius: 15px; background-color: #ffffff; margin-left: 5px; margin-top: 10px;">
+                <div class="headInfo" style="border-bottom: 1px solid gray;">
+                    <div class="text" style="display: grid; grid-template-columns: 1fr 1fr 1fr .5fr;">
+                        <div class="type" style="float: right;">
+                            <text>Charts type</text>
+                        </div>
+                        <div class="x" style="float: left;">
+                            <text>x Axis</text>
+                        </div>
+                        <div class="y" style="float: left;">
+                            <text>y Axis</text>
+                        </div>
+                    </div>
+                    <div class="selector" style="display: grid; grid-template-columns: 1fr 1fr 1fr .5fr; padding-bottom: 5px;">
+                        <div class="type" style="float: right;">
+                            <select>
+                                <option >Histogram</option>
+                                <option selected="selected">Line chart</option>
+                                <option >Bubble chart</option>
+                            </select>
+                        </div>
+                        <div class="x" style="float: left;">
+                            <select class="selx">
+                                <option>Year</option>
+                                <option>Genre</option>
+                                <option>Sales</option>
+                                <option>Platform</option>
+                                <option>Publisher</option>
+                            </select>
+                        </div>
+                        <div class="y" style="float: left;">
+                            <select class="sely">
+                                <option>Name</option>
+                                <option>Genre</option>
+                                <option>Sales</option>
+                                <option>Platform</option>
+                                <option>Publisher</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button class="run">Run</button>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="chartMain" style="width: 100%;height: 100%; overflow-x:scroll">
+                    <div style="width: 100%;height: 5%;">
+                        <svg style="width: 100%;height: 100%;">
+                            <g class="label"></g>
+                        </svg>
+                    </div>
+                    <div class="chartSvgDiv" style="width: 100%;height: 95%;">
+                        <svg class="chartSvg" style="width: 100%;height: 100%;">
+                            <g class="xAxis"></g>
+                            <g class="yAxis"></g>
+                            <g class="Main"></g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>
