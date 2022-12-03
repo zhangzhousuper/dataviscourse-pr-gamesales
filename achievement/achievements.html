@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,42 +11,86 @@
     <link href="../fontawesome-free-6.2.0-web/css/solid.css" rel="stylesheet">
     <script src = "achievementChart.js" ></script>
     <script src="script.js"></script>
-    <link href="../CSS/fundemental.css" rel="stylesheet">
+    <script src="d3-waffle.js"></script>
+    <!-- <link href="../CSS/fundemental.css" rel="stylesheet"> -->
+    <link href="./achievement.css" rel="stylesheet">
+    
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Quicksand" />
     <title>Document</title>
+    <style>
+        
+        * {
+                font-family: 'Quicksand';
+                font-weight: bold;
+                position: relative;
+                z-index: auto;;
+        }
+        #title {
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;}
+        
+        select {
+            font-size: 12px;
+            border-radius: 10px;
+            padding: 6px 4px;
+            border: 1px solid #d7d7d7;
+            background: #fff;
+            /* background: rgba(0,0,0,0) url(../../../assets/images/down-arrow.png) no-repeat scroll calc(5% + 3px) center/8px auto; */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            color: #939598;
+        }
+    </style>
 </head>
 <body>
     <div class="toolbox">
     </div>
 
     <div class="nav_wrapper">
-        <a href="../main.html" class="now_page">
+        <a href="../index.html" class="now_page">
             <i class="fa-solid fa-angle-left"></i>
             Achievements
         </a>
-        <a href="../home.html" class="app__link app-link is-active" title="Characters">
+        <a href="../home/home.html" class="app__link app-link is-active" title="Characters">
             Home
         </a>
         <a href="../map/map.html" class="app__link app-link is-active" title="Characters">
             Maps
         </a>
-        <a href="../cw.html" class="app__link app-link" title="Locations">
+        <a href="../cw/cw.html" class="app__link app-link is-active" title="Locations">
             Character workshops
         </a>
-        <a data-fancybox="" data-src="#panel-about" href="javascript:;" class="app__link" title="About">
+        <a href="../about/about.html" class="app__link app-link is-active" title="About">
             About
         </a>
     </div>
-
-    <div class="body_wrapper">
-        <div class="achievement_chart">
+    <div id = "title" id = "title" ></div>
+        
+    <div class="body_wrapper" style="background-color:#f6f5fa">
+        <div class="achievement_chart" style="background-color: white; border-radius: 10px; padding: 10px; margin: 10px;">
             <svg class="achievement_chart_svg">
             </svg>
             
         </div>
-        <div class="achievement_info">
-            <svg class="achievement_info_svg">
-            </svg>
+        <div class="select_div">
+            <select id="achievement_info_select">
+                <option value="Sales">Sales</option>
+                <option value="Genres">Genres</option>
+                <option value="Platform">Platform</option>
+            </select> 
         </div>
+        <div class="achievement_info" style="background-color: white; border-radius: 10px; padding: 10px; margin: 10px;">
+            <svg class="achievement_info_svg">
+                <g id="achievement_info_waffle_chart">
+                </g>
+            </svg>
+             
+        </div>
+        
     </div>
 </body>
 </html>
