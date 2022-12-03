@@ -1,7 +1,7 @@
 body { margin: 0px; padding: 0px; }
 .nav_wrapper {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr 1fr 1fr .5fr;
     height:50px;
     background-color: #ffffff;
     text-align: center;
