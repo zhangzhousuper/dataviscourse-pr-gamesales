@@ -75,6 +75,7 @@ class cwVis {
         this.attachSortHandlers(this.vgsalesData, this);
         this.changeSelectorInfo();
         this.button(this);
+        this.Bubblechart("NA_Sales", "NA_Sales");
         
     }
 
@@ -373,7 +374,7 @@ class cwVis {
                 tooltip
                 .style("opacity", 1)
                 .style("z-index","2")
-                .html("Name: " + d["Name"] + `<br> ${xText}: ` + d[xText] + `<br> ${yText}: ` + d[yText])
+                .html("Name: " + d["Name"] + `<br> ${xText}: ` + d[xText] + "M" + `<br> ${yText}: ` + d[yText] + "M")
                 .style("left", ()=>{
                     console.log(event.clientX-700)
                     if(event.clientX-700 < 0)
@@ -390,7 +391,7 @@ class cwVis {
                         return (event.clientY-200) + "px"
                 })
                 d3.select(this)
-                .style("opacity", ".5")
+                .style("opacity", "10")
             }
         }
 
@@ -480,11 +481,10 @@ class cwVis {
 
     button(out){
         d3.select(".run").on("click",()=>{
-            // chart type
-            let sel = document.querySelector("select");
-            let index = sel.selectedIndex;
-            let text = sel.options[index].text;
-
+            // // chart type
+            // let sel = d3.select(".selector").select(".type");
+            // console.log(sel)
+            
             // x
             let selX = document.querySelector(".selx");
             let indexX = selX.selectedIndex;
@@ -495,12 +495,12 @@ class cwVis {
             let indexY = selY.selectedIndex;
             let textY = selY.options[indexY].text;
 
-            if(text === "Bar chart"){
-                out.Barchart(textX, textY);
-            }
-            else if(text === "Bubble chart"){
-                out.Bubblechart(textX, textY);
-            }
+            // if(text === "Bar chart"){
+            //     out.Barchart(textX, textY);
+            // }
+            // else if(text === "Bubble chart"){
+            out.Bubblechart(textX, textY);
+            // }
         })
     }
     

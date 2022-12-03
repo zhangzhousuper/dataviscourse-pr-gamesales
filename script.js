@@ -10,6 +10,6 @@ loadData().then((loadedData) => {
   const vgsalesData = loadedData.vgsalesData;
   
   const worldMap = new MapVis(mapData, vgsalesData);
-  const cw = new cwVis(vgsalesData);
+  // const cw = new cwVis(vgsalesData);
 
 });
