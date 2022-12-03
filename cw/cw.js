@@ -76,6 +76,7 @@ class cwVis {
         this.changeSelectorInfo();
         this.button(this);
         this.Bubblechart("NA_Sales", "NA_Sales");
+        this.addTutorial();
         
     }
 
@@ -501,6 +502,18 @@ class cwVis {
             // else if(text === "Bubble chart"){
             out.Bubblechart(textX, textY);
             // }
+        })
+    }
+
+    addTutorial(){
+        d3.select(".tt").style("display","none");
+
+        d3.select(".tutorial").on("click",()=>{
+            d3.select(".tt").style("display","block");
+        })
+
+        d3.select(".tt").on("click",()=>{
+            d3.select(".tt").style("display","none");
         })
     }
     

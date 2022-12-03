@@ -18,6 +18,7 @@ class MapVis {
         this.lineCreate(this.vgsalesData, "Global_Sales");
 
         this.mapCreate(this, this.vgsalesData);
+        this.addTutorial();
 
         d3.select(".charts").style("width","94%").style("height","94%")
                             .style("background-color","white")
@@ -786,6 +787,21 @@ class MapVis {
         // change back to global
         d3.select(".world_map").select("button").on("click",mouseclick)
 
+    }
+
+    addTutorial(){
+
+        d3.select(".tt").style("display","none");
+
+        // hidden
+        d3.select(".tutorial").on("click",()=>{
+            d3.select(".tt").style("display","block");
+        })
+
+        // show
+        d3.select(".tt").on("click",()=>{
+            d3.select(".tt").style("display","none");
+        })
     }
     
 }
