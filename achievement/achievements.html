@@ -44,6 +44,7 @@
             appearance: none;
             color: #939598;
         }
+        
     </style>
 </head>
 <body>
@@ -71,33 +72,33 @@
     <div id = "title" id = "title" ></div>
         
     <div class="body_wrapper" style="background-color:#f6f5fa">
-        <div class="achievement_chart" style="background-color: white; border-radius: 10px; padding: 10px; margin: 10px;">
-            <svg class="achievement_chart_svg">
-            </svg>
-            
+        <div  class = "tutorial" style="background-color: white; border-radius: 10px; padding: 10px; margin: 10px;">
+            <p>This page shows the achievement(depends on sales) of each publishers in the game industry.</p>
+            <p>How to use it?</p>
+            <p>1. Select the publisher you want to see.</p>
+            <p>2. Click the stacked bar to see the detail of selected year and region.</p>
         </div>
-        <!-- <div class="select_div">
+        
+        
+    </div>
+    <div id = "left" class="achievement_chart" style="background-color: white; border-radius: 10px; padding: 30px; margin: 30px; float: left; width: 45%;" >
+        <div>
+        <svg class="achievement_chart_svg"></svg>
+        </div>
+    </div>
+
+    <div id = "right" class="achievement_info" style="background-color: white; border-radius: 10px; padding: 30px; margin: 30px;float: right; width: 45%;">
+        <div class="select_div">
             <select id="achievement_info_select">
                 <option value="Sales">Sales</option>
                 <option value="Genres">Genres</option>
                 <option value="Platform">Platform</option>
             </select> 
-        </div> -->
-        <div class="achievement_info" style="background-color: white; border-radius: 10px; padding: 10px; margin: 10px;">
-            <div class="select_div">
-                <select id="achievement_info_select">
-                    <option value="Sales">Sales</option>
-                    <option value="Genres">Genres</option>
-                    <option value="Platform">Platform</option>
-                </select> 
-            </div>
-            <svg class="achievement_info_svg">
-                <g id="achievement_info_waffle_chart">
-                </g>
-            </svg>
-             
         </div>
-        
+        <svg class="achievement_info_svg">
+            <g id="achievement_info_waffle_chart">
+            </g>
+        </svg>
     </div>
 </body>
 </html>
