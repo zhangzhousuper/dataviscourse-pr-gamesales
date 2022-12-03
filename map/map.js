@@ -9,148 +9,23 @@ class MapVis {
   
     constructor(mapData, vgsalesData) {
         
-        this.mapData = mapData
-        this.vgsalesData = vgsalesData
-        console.log(vgsalesData)
+        this.mapData = mapData;
+        this.vgsalesData = vgsalesData;
+        this.changeColorF = 0;
 
-        this.mapCreate();
-        this.donutCreate();
-        this.heatmapCreate(this.vgsalesData);
-        this.lineCreate(this.vgsalesData);
+        this.donutCreate(this);
+        this.heatmapCreate(this.vgsalesData, "Global_Sales");
+        this.lineCreate(this.vgsalesData, "Global_Sales");
+
+        this.mapCreate(this, this.vgsalesData);
 
         d3.select(".charts").style("width","94%").style("height","94%")
                             .style("background-color","white")
                             .style("margin-left","30px").style("margin-top","25px")
-                            .style("border-radius","25px")
-        
+                            .style("border-radius","25px") 
     }
 
-    mapCreate(){
-        // basic info
-        let width = document.getElementsByClassName("world_map")[0].clientWidth;
-        let height = document.getElementsByClassName("world_map")[0].clientHeight;
-
-        // svg basic
-        let svg = d3.select(".world_map").select("svg").attr("width","100%").attr("height","100%");
-
-        // load map data
-        let json = topojson.feature(this.mapData, this.mapData.objects.countries);
-
-        // define regions
-        let JP = ["JPN"]
-        let NA = ["USA","CAN"]
-        let EU = ["UK","FIN","SWE","NOR","ISL","DNK","EST","LVA","LTU","BLR","RUS","UKR","MDA","POL","CZE","SVK","HUN",
-        "DEU","AUT","CHE","LIE","IRL","NLD","BEL","LUX","FRA","MCO","ROU","BGR","SRB","MKD","ALB","GRC","SVN","HRV","ITA",
-        "VAT","SMR","MLT","ESP","PRT","AND","BIH"]
-
-        // create a tooltip
-        var tooltip = d3.select(".world_map")
-                        .append("div")
-                        .style("opacity", 0)
-                        .attr("class", "tooltip")
-                        .style("background-color", "white")
-                        .style("border", "solid")
-                        .style("border-width", "2px")
-                        .style("border-radius", "5px")
-                        .style("padding", "5px")
-                        .style("position","absolute")
-                        .style("z-index","2")
-        
-        // Three function that change the tooltip when user hover / move / leave a cell
-        const mouseover = function(event,d) {
-            tooltip
-            .style("opacity", 1)
-            .style("z-index","2")
-            .html("Region: " + d.region + "<br> Sales: " + d.Sales)
-            .style("left", (event.clientX) + "px")
-            .style("top", (event.clientY) + "px")
-            d3.select(this)
-            .style("stroke", "black")
-            .style("opacity", 1)
-
-            // change region color
-            let selectedReigon = d3.select(this)
-            selectedReigon.attr("text",d=>{
-                // change color
-                let changeColor = function(region){
-                    let allPath = d3.select(".world_map").select("svg").selectAll("path");
-                    allPath = allPath._groups[0];
-                    allPath.forEach(d=>{
-                        let id = "";
-                        d3.select(d).attr("text",d=>id=d["id"]);
-                        if(region==="None")
-                        { 
-                            if(!(JP.includes(id)||NA.includes(id)||EU.includes(id)))
-                            {
-                                d3.select(d).attr("fill","#e3e0d4")
-                            }
-                        }
-                        else
-                        {
-                            if(region.includes(id))
-                            {
-                                d3.select(d).attr("fill","#e3e0d4")
-                            }
-                        }    
-                    })
-                }
-                // check
-                let region = 0;
-                if(JP.includes(d['id']))
-                {
-                    changeColor(JP);
-                }
-                else if(EU.includes(d['id']))
-                {
-                    changeColor(EU);
-                }
-                else if(NA.includes(d['id']))
-                {
-                    changeColor(NA);
-                }
-                else
-                {
-                    changeColor("None");
-                }
-            })
-        }
-        
-        const mouseleave = function(event,d) {
-            tooltip
-            .style("opacity", 0)
-            .style("z-index","-1")
-            d3.select(this)
-            .style("stroke", "none")
-            .style("opacity", 0.8)
-        }
-
-        // Set up the map projection
-        const projection = d3.geoWinkel3()
-        .scale(100)
-        .translate([width/2, height/2+10]);
-
-        let path = d3.geoPath().projection(projection);
-        
-        svg.selectAll("path").data(json.features)
-            .join("path")
-            .attr("d", (path))
-            .attr("fill", "lightgray")
-            .attr("opacity",0.8)
-            .attr("stroke","none")
-            .attr("stroke-width","0px")
-            .on("mouseout",function(){
-                let allPath = d3.select(".world_map").select("svg").selectAll("path").attr("fill","gray");
-            })
-            .on("mouseover", mouseover)
-            .on("mouseleave", mouseleave)
-        
-        // text
-        svg.append("text").text("Sales by Regions").attr("transform","translate(20,20)").attr("fill","black").attr("font-size","14");
-        svg.append("text").text("Global").attr("transform","translate(20,40)").attr("fill","gray").attr("font-size","12")
-
-    }
-
-    donutCreate(){
+    donutCreate(out){
 
         // data
         let vgsalesData = this.vgsalesData;
@@ -178,6 +53,10 @@ class MapVis {
             {region:"other",value:Sales["other"]},
             {region:"global",value:Sales["global"]},
         ]
+
+        this.Sales = Sales;
+
+        let global_Sales = Sales[4].value
 
         // create pie
         let pie = d3.pie();
@@ -215,7 +94,9 @@ class MapVis {
         let height = document.getElementsByClassName("pieSvg")[0].clientHeight;
 
         // donut chart 
-        let SalesInfo = [["Global",0],["1000",16]]
+        let g = d3.format(".2f")(global_Sales);
+        g = g + "M" 
+        let SalesInfo = [["Global",0],[g,0]]
 
         this.colorScale = d3.scaleOrdinal().domain(Sales.map(d=>d.region)).range(["#1e2d4a","#989784","#b5b09a","#e3e0d4","#efeee5"]);
 
@@ -238,14 +119,125 @@ class MapVis {
         // donut label
         d3.select(".pie").select("svg").select(".label").selectAll("circle").data(Sales.slice(0,4)).join("circle").attr("r",6).attr("transform",(d,i)=>`translate(40,${i*30+80})`).attr("fill",d=>this.colorScale(d.region))
         d3.select(".pie").select("svg").select(".label").selectAll("text").data(Sales.slice(0,4)).join("text").attr("r",6).attr("transform",(d,i)=>`translate(55,${i*30+85})`).text(d=>d.region)
+
+        // hover
+        // create a tooltip
+        var tooltip = d3.select(".pie").select("div")
+                        .append("div")
+                        .style("opacity", 0)
+                        .attr("class", "tooltip")
+                        .style("background-color", "white")
+                        .style("border", "solid")
+                        .style("border-width", "2px")
+                        .style("border-radius", "5px")
+                        .style("padding", "5px")
+                        .style("position","absolute")
+                        .style("z-index","2")
+        
+        // Three function that change the tooltip when user hover / move / leave a cell
+        const mouseover = function(event,d) {
+            tooltip
+            .style("opacity", 1)
+            .style("z-index","2")
+            d3.select(this)
+            .style("stroke", "black")
+            .style("opacity", 1)
+        }
+
+        const mousemove = function(event,d) {
+            console.log(d.data)
+            if(event.clientX>1000)
+            {
+                tooltip
+                .html("Region: " + d.data.region +"<br>" + d3.format(".2f")((d.value/global_Sales)*100)+"%")
+                .style("left", (event.clientX)-250 + "px")
+                .style("top", (event.clientY)-500 + "px")
+            }
+            else{
+                tooltip
+                .html("Region: " + d.data.region +"<br>" + d3.format(".2f")((d.value/global_Sales)*100)+"%")
+                .style("left", (event.clientX)-250 + "px")
+                .style("top", (event.clientY)-500 + "px")
+            }
+        }
+
+        const mouseleave = function(event,d) {
+            tooltip
+            .style("opacity", 0)
+            .style("z-index","-1")
+            d3.select(this)
+            .style("stroke", "none")
+            .style("opacity", 0.8)
+        }
+
+        const mouseclick = function(event, d){
+            console.log(d)
+
+            if(out.changeColorF===1)
+            {
+                let allPath = d3.select(".world_map").select("svg").selectAll("path").attr("fill","gray");
+            }
+
+            if(d===undefined)
+            {
+                out.heatmapCreate(vgsalesData, "Global_Sales");
+                out.lineCreate(vgsalesData, "Global_Sales");
+                d3.select(".regionName").text("Global");
+                out.changeColorF = 0;
+            }
+            else
+            {
+                let region = d.data.region;
+
+                if(region==='JP')
+                {
+                    out.heatmapCreate(vgsalesData, "JP_Sales");
+                    out.lineCreate(vgsalesData, "JP_Sales");
+                    d3.select(".regionName").text("JP");
+                    out.changeColor(out.JP);
+                    out.changeColorF = 1;
+                }
+                else if(region==='NA')
+                {
+                    out.heatmapCreate(vgsalesData, "NA_Sales");
+                    out.lineCreate(vgsalesData, "NA_Sales");
+                    d3.select(".regionName").text("NA");
+                    out.changeColor(out.NA);
+                    out.changeColorF = 1;
+                }
+                else if(region==='EU')
+                {
+                    out.heatmapCreate(vgsalesData, "EU_Sales");
+                    out.lineCreate(vgsalesData, "EU_Sales");
+                    d3.select(".regionName").text("EU");
+                    out.changeColor(out.EU);
+                    out.changeColorF = 1;
+                }
+                else
+                {
+                    out.heatmapCreate(vgsalesData, "Other_Sales");
+                    out.lineCreate(vgsalesData, "Other_Sales");
+                    d3.select(".regionName").text("Other");
+                    out.changeColor("None");
+                    out.changeColorF = 1;
+                }
+            }
+
+        }
+        
+        d3.select(".pie").select("svg").select(".pieChart").selectAll("g")
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave)
+            .on("click",mouseclick)
     }
 
-    heatmapCreate(vgsalesData){
+    heatmapCreate(vgsalesData, regionSales){
         // basic
         let svg = d3.select(".small").attr("transform","translate(0,0)").select(".heatmap").attr("transform","translate(75, 20)")
         let rectwidth = document.getElementsByClassName("small")[0].clientWidth-130;
         let rectheight = 365-100;
-        
+
         // x label name
         let Year = d3.group(vgsalesData,d=>d.Year).keys();
         let yearLabel = []
@@ -253,7 +245,6 @@ class MapVis {
         yearLabel.sort((a,b)=>a-b)
         yearLabel = yearLabel.slice(0,40); // truncate
         this.yearLabel = yearLabel
-        console.log(this.yearLabel)
         
         // y label name
         let Genre = d3.group(vgsalesData,d=>d.Genre).keys();
@@ -266,19 +257,19 @@ class MapVis {
         let YGData = []
         yearLabel.forEach(j=>{
             genreLabel.forEach(i=>{
-                let Global_Sales = 0;
+                let Sales = 0;
 
                 vgsalesData.filter(d=>{
                     if(d.Year===j && d.Genre===i)
                     {
-                       Global_Sales += parseFloat(d.Global_Sales)
+                       Sales += parseFloat(d[regionSales])
                     }
                 })
 
                 let data = {
                     Year:j,
                     Genre:i,
-                    Global_Sales:Global_Sales,
+                    Sales:Sales,
                 }
                 YGData.push(data)
             })
@@ -313,13 +304,13 @@ class MapVis {
             if(event.clientX>1000)
             {
                 tooltip
-                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d["Sales"]) +"M")
                 .style("left", (event.clientX)-750 + "px")
                 .style("top", (event.clientY)-180 + "px")
             }
             else{
                 tooltip
-                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d["Sales"]) +"M")
                 .style("left", (event.clientX)-600 + "px")
                 .style("top", (event.clientY)-180 + "px")
             }
@@ -367,7 +358,7 @@ class MapVis {
         d3.select(".small").select(".yAxis").selectAll("path").attr("visibility","hidden");
 
         // Build color scale
-        let salesMax = d3.max(YGData,d=>d.Global_Sales)
+        let salesMax = d3.max(YGData,d=>d["Sales"])
 
         var myColor = d3.scaleSequential()
                         .interpolator(d3.interpolateReds)
@@ -385,10 +376,12 @@ class MapVis {
             .attr("ry", 2)
             .attr("width", x.bandwidth() )
             .attr("height", y.bandwidth() )
-            .style("fill", function(d) { return myColor(d.Global_Sales)} )
+            .style("fill", function(d) { return myColor(d["Sales"])} )
             .style("stroke-width", .2)
             .style("stroke", "lightgray")
             .style("opacity", 0.8)
+
+        svg.selectAll("rect")
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave)
@@ -415,7 +408,7 @@ class MapVis {
         }
       }
 
-    lineCreate(vgsalesData){
+    lineCreate(vgsalesData, regionSales){
         // let pHeight = document.getElementsByClassName("chartsDown")[0].clientHeight;
 
         let svg = d3.select(".lineChart").attr("width","100%").attr("height",370).select(".line").attr("width","100%").attr("height","100%").attr("transform","translate(85.45, 15)");
@@ -434,18 +427,18 @@ class MapVis {
         vgsalesData.sort((a,b)=>a-b);
         yearLabel.forEach(j=>{
             
-            let Global_Sales = 0;
+            let Sales = 0;
 
             vgsalesData.filter(d=>{
                 if(d.Year===j)
                 {
-                    Global_Sales += parseFloat(d.Global_Sales)
+                    Sales += parseFloat(d[regionSales])
                 }
             })
 
             let data = {
                 Year:j,
-                Global_Sales:Global_Sales,
+                Sales:Sales,
             }
             YGDataSum.push(data)
 
@@ -462,11 +455,11 @@ class MapVis {
         // y
         let y = d3.scaleLinear()
                   .range([350, 0 ])
-                  .domain([0, d3.max(YGDataSum, d=>d.Global_Sales)])
+                  .domain([0, d3.max(YGDataSum, d=>d.Sales)])
         let YAxis = d3.axisLeft();
         YAxis.scale(y)
         d3.select(".lineChart").select(".yAxis").call(YAxis).attr("transform","translate(70,15)")
-        d3.select(".lineChart").select(".yAxis").selectAll("line").attr("stroke-dasharray","1 1").attr("stroke","lightgray").attr("x2","820");
+        d3.select(".lineChart").select(".yAxis").selectAll("line").attr("stroke-dasharray","1 1").attr("stroke","lightgray").attr("x2","840");
         d3.select(".lineChart").select(".yAxis").selectAll("path").attr("visibility","hidden");
         
 
@@ -474,9 +467,12 @@ class MapVis {
         // create line
         const lineGenerator = d3.line()
                                 .x(d=>x(d.Year))
-                                .y(d=>y(d.Global_Sales))
+                                .y(d=>y(d.Sales))
 
-        svg.select("path").datum(YGDataSum).attr("d", lineGenerator)
+        svg.select("path").datum(YGDataSum)
+           .transition()
+           .duration(500)
+           .attr("d", lineGenerator)
            .attr("stroke", "#cc0000")
            .attr("stroke-width", 1.5)
            .attr("fill","none")
@@ -527,12 +523,12 @@ class MapVis {
             YGDataSum.forEach(item=>{
                 if(parseFloat(item.Year) === xYear)
                 {
-                    yPosition = y(item.Global_Sales)+15;
+                    yPosition = y(item.Sales)+15;
                     d = item;
                 }
             })
 
-            if(flag === true)
+            if(flag === true && nowX>70 && nowX<920)
                 d3.select(".overlay").select("circle").attr("r",3).attr("cx",nowX).attr("cy",yPosition).attr("stroke-wdith","2").attr("fill","red")
 
             // Three function that change the tooltip when user hover / move / leave a cell
@@ -541,14 +537,14 @@ class MapVis {
             if(event.clientX>1000)
             {
                 tooltip
-                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .html("Year: " + d.Year + "<br> sales: " + d3.format(".2f")(d.Sales) +"M")
                 .style("left", (event.clientX)-750 + "px")
                 .style("top", (event.clientY)-180 + "px")
                 .style("opacity",1)
             }
             else{
                 tooltip
-                .html("Year: " + d.Year + "<br> Genre: " + d.Genre + "<br> sales: " + d3.format(".2f")(d.Global_Sales) +"M")
+                .html("Year: " + d.Year + "<br> sales: " + d3.format(".2f")(d.Sales) +"M")
                 .style("left", (event.clientX)-750 + "px")
                 .style("top", (event.clientY)-100 + "px")
                 .style("opacity",1)
@@ -557,6 +553,239 @@ class MapVis {
         .on("mouseover", mouseover)
         .on("mouseleave", mouseleave)
         
+    }
+
+    mapCreate(out, vgsalesData){
+        // basic info
+        let width = document.getElementsByClassName("world_map")[0].clientWidth;
+        let height = document.getElementsByClassName("world_map")[0].clientHeight;
+
+        // svg basic
+        let svg = d3.select(".world_map").select("svg").attr("width","100%").attr("height","100%");
+
+        // load map data
+        let json = topojson.feature(this.mapData, this.mapData.objects.countries);
+
+        // define regions
+        this.JP = ["JPN"]
+        this.NA = ["USA","CAN"]
+        this.EU = ["UK","FIN","SWE","NOR","ISL","DNK","EST","LVA","LTU","BLR","RUS","UKR","MDA","POL","CZE","SVK","HUN",
+        "DEU","AUT","CHE","LIE","IRL","NLD","BEL","LUX","FRA","MCO","ROU","BGR","SRB","MKD","ALB","GRC","SVN","HRV","ITA",
+        "VAT","SMR","MLT","ESP","PRT","AND","BIH"]
+
+        let JP = this.JP
+        let NA = this.NA
+        let EU = this.EU
+
+        // change color
+        this.changeColor = function(region){
+            let allPath = d3.select(".world_map").select("svg").selectAll("path");
+            allPath = allPath._groups[0];
+            allPath.forEach(d=>{
+                let id = "";
+                d3.select(d).attr("text",d=>id=d["id"]);
+                if(region==="None")
+                { 
+                    if(!(JP.includes(id)||NA.includes(id)||EU.includes(id)))
+                    {
+                        d3.select(d).attr("fill","#e3e0d4")
+                    }
+                }
+                else
+                {
+                    if(region.includes(id))
+                    {
+                        d3.select(d).attr("fill","#e3e0d4")
+                    }
+                }    
+            })
+        }
+
+        let changeColor = this.changeColor
+
+        // create a tooltip
+        var tooltip = d3.select(".world_map")
+                        .append("div")
+                        .style("opacity", 0)
+                        .attr("class", "tooltip")
+                        .style("background-color", "white")
+                        .style("border", "solid")
+                        .style("border-width", "2px")
+                        .style("border-radius", "5px")
+                        .style("padding", "5px")
+                        .style("position","absolute")
+                        .style("z-index","2")
+        
+        // Three function that change the tooltip when user hover / move / leave a cell
+        const mouseover = function(event,d) {
+            let region = "";
+            let Sales = "";
+
+            if(JP.includes(d.id))
+            {
+                region = "Japan";
+                Sales = out.Sales.filter(item=>{
+                    return item.region === "JP"
+                })
+                Sales = JSON.stringify(Sales[0]["value"])
+            }
+            else if(NA.includes(d.id))
+            {
+                region = "North American";
+                Sales = out.Sales.filter(item=>{
+                    return item.region === "NA"
+                })
+                Sales = JSON.stringify(Sales[0]["value"])
+            }
+            else if(EU.includes(d.id))
+            {
+                region = "European"
+                Sales = out.Sales.filter(item=>{
+                    return item.region === "EU"
+                })
+                Sales = JSON.stringify(Sales[0]["value"])
+            }
+            else
+            {
+                region = "Others"
+                Sales = out.Sales.filter(item=>{
+                    return item.region === "other"
+                })
+                Sales = JSON.stringify(Sales[0]["value"])
+                console.log(Sales)
+            }
+            
+            tooltip
+            .style("opacity", 1)
+            .style("z-index","2")
+            .html("Region: " + region + "<br> Sales: " + d3.format(".2f")(Sales) +"M")
+            .style("left", (event.clientX) + "px")
+            .style("top", (event.clientY) + "px")
+            d3.select(this)
+            .style("stroke", "black")
+            .style("opacity", 1)
+
+            // change region color
+            if(out.changeColorF!=1)
+            {
+                let selectedReigon = d3.select(this)
+                selectedReigon.attr("text",d=>{
+                    // check
+                    let region = 0;
+                    if(JP.includes(d['id']))
+                    {
+                        changeColor(JP);
+                    }
+                    else if(EU.includes(d['id']))
+                    {
+                        changeColor(EU);
+                    }
+                    else if(NA.includes(d['id']))
+                    {
+                        changeColor(NA);
+                    }
+                    else
+                    {
+                        changeColor("None");
+                    }
+                })
+            }   
+        }
+        
+        const mouseleave = function(event,d) {
+            tooltip
+            .style("opacity", 0)
+            .style("z-index","-1")
+
+            d3.select(this)
+                .style("stroke", "none")
+                .style("opacity", 0.8)
+        }
+
+        const mouseclick = function(event, d){
+            if(out.changeColorF===1)
+            {
+                let allPath = d3.select(".world_map").select("svg").selectAll("path").attr("fill","gray");
+            }
+
+            if(d===undefined)
+            {
+                out.heatmapCreate(vgsalesData, "Global_Sales");
+                out.lineCreate(vgsalesData, "Global_Sales");
+                d3.select(".regionName").text("Global");
+                out.changeColorF = 0;
+            }
+            else
+            {
+                let region = d.id;
+
+                if(JP.includes(region))
+                {
+                    out.heatmapCreate(vgsalesData, "JP_Sales");
+                    out.lineCreate(vgsalesData, "JP_Sales");
+                    d3.select(".regionName").text("JP");
+                    changeColor(JP);
+                    out.changeColorF = 1;
+                }
+                else if(NA.includes(region))
+                {
+                    out.heatmapCreate(vgsalesData, "NA_Sales");
+                    out.lineCreate(vgsalesData, "NA_Sales");
+                    d3.select(".regionName").text("NA");
+                    changeColor(NA);
+                    out.changeColorF = 1;
+                }
+                else if(EU.includes(region))
+                {
+                    out.heatmapCreate(vgsalesData, "EU_Sales");
+                    out.lineCreate(vgsalesData, "EU_Sales");
+                    d3.select(".regionName").text("EU");
+                    changeColor(EU);
+                    out.changeColorF = 1;
+                }
+                else
+                {
+                    out.heatmapCreate(vgsalesData, "Other_Sales");
+                    out.lineCreate(vgsalesData, "Other_Sales");
+                    d3.select(".regionName").text("Other");
+                    changeColor("None");
+                    out.changeColorF = 1;
+                }
+            }
+
+        }
+
+        // Set up the map projection
+        const projection = d3.geoWinkel3()
+        .scale(100)
+        .translate([width/2, height/2+10]);
+
+        let path = d3.geoPath().projection(projection);
+        
+        svg.selectAll("path").data(json.features)
+            .join("path")
+            .attr("d", (path))
+            .attr("fill", "gray")
+            .attr("opacity",0.8)
+            .attr("stroke","none")
+            .attr("stroke-width","0px")
+            .on("mouseout",function(){
+                if(out.changeColorF!=1)
+                {
+                    let allPath = d3.select(".world_map").select("svg").selectAll("path").attr("fill","gray");
+                }
+            })
+            .on("mouseover", mouseover)
+            .on("mouseleave", mouseleave)
+            .on("click", mouseclick)
+        
+        // text
+        svg.append("text").text("Sales by Regions").attr("transform","translate(20,20)").attr("fill","black").attr("font-size","14");
+        svg.append("text").text("Global").attr("transform","translate(20,40)").attr("fill","gray").attr("font-size","12").classed("regionName",true);
+
+        // change back to global
+        d3.select(".world_map").select("button").on("click",mouseclick)
+
     }
     
 }
