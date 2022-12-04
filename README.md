@@ -6,5 +6,5 @@ Game Sales Visualization
 - Youyang Huang uid:u1419187
 
 # info
-Project Website: https://zhangzhousuper.github.io/dataviscourse-pr-gamesales/
+Project Website: https://zhangzhousuper.github.io/dataviscourse-pr-gamesales/  
 Video Link: https://youtu.be/RoLReg0DSfo
